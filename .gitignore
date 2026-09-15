@@ -1,0 +1,40 @@
+# Data files & directories
+data/
+*.csv
+*.json
+*.parquet
+*.sqlite
+*.db
+
+# Virtual Environments (including the cricket_env from earlier)
+cricket_env/
+venv/
+.venv/
+env/
+ENV/
+
+# Python cache & dynamic files
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+
+# Jupyter Notebook checkpoints
+.ipynb_checkpoints
+
+# Trained Model Files & Heavy Artifacts
+*.joblib
+*.pkl
+*.h5
+*.onnx
+
+# Environment variables & secrets
+.env
+.env.*
+
+# IDE & System Files
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
