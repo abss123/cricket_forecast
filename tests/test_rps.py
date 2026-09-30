@@ -8,13 +8,13 @@ import pytest
 from src.rps import MAX_THRESHOLD, MIN_THRESHOLD, N_THRESHOLDS, point_mass_cdf, rps_score
 
 
-@pytest.mark.parametrize("y", [0, 1, 57, 150, 299, 300])
+@pytest.mark.parametrize("y", [0, 1, 57, 150, 299, 300, 399, 400])
 def test_point_mass_at_y_scores_zero(y):
     F = point_mass_cdf(y)
     assert rps_score(F, y) == pytest.approx(0.0)
 
 
-@pytest.mark.parametrize("y,k", [(0, 1), (0, 10), (50, 1), (50, 25), (150, 50), (100, 200), (0, 300)])
+@pytest.mark.parametrize("y,k", [(0, 1), (0, 10), (50, 1), (50, 25), (150, 50), (100, 200), (0, 300), (0, 400)])
 def test_point_mass_at_y_plus_k_scores_k(y, k):
     """A point mass shifted k runs away from the truth scores exactly k."""
     assert y + k <= MAX_THRESHOLD

@@ -1,83 +1,38 @@
-\documentclass[10pt]{article}
+\documentclass{article}
 
-% ---------------------------------------------------------------------------
-% NeurIPS page layout (reproduces the geometry, fonts and title block of the
-% official neurips_20xx.sty). To use the official file instead, delete this
-% block and add \usepackage[preprint]{neurips_2025} (or the current year).
-% ---------------------------------------------------------------------------
-\makeatletter
-\setlength{\paperheight}{11in}
-\setlength{\paperwidth}{8.5in}
-\setlength{\oddsidemargin}{0.5in}
-\setlength{\evensidemargin}{0.5in}
-\setlength{\marginparwidth}{0.07in}
-\setlength{\topmargin}{-0.625in}
-\setlength{\headheight}{12pt}
-\setlength{\headsep}{25pt}
-\setlength{\textheight}{9in}
-\setlength{\textwidth}{5.5in}
-\setlength{\footskip}{30pt}
-\setlength{\parindent}{0pt}
-\setlength{\parskip}{5.5pt}
-\renewcommand{\normalsize}{\@setfontsize\normalsize\@xpt\@xipt
-  \abovedisplayskip 7pt plus 2pt minus 5pt
-  \belowdisplayskip \abovedisplayskip
-  \abovedisplayshortskip 0pt plus 3pt
-  \belowdisplayshortskip 4pt plus 3pt minus 3pt}
-\normalsize
-\renewcommand{\section}{\@startsection{section}{1}{\z@}
-  {-2.0ex \@plus -0.5ex \@minus -0.2ex}{1.5ex \@plus 0.3ex \@minus 0.2ex}
-  {\large\bf\raggedright}}
-\renewcommand{\subsection}{\@startsection{subsection}{2}{\z@}
-  {-1.8ex \@plus -0.5ex \@minus -0.2ex}{0.8ex \@plus 0.2ex}
-  {\normalsize\bf\raggedright}}
-\renewcommand{\paragraph}{\@startsection{paragraph}{4}{\z@}
-  {1.5ex \@plus 0.5ex \@minus 0.2ex}{-1em}{\normalsize\bf}}
-\def\toptitlebar{\hrule height 4pt \vskip 0.25in \vskip -\parskip}
-\def\bottomtitlebar{\vskip 0.29in \vskip -\parskip \hrule height 1pt \vskip 0.09in}
-\renewcommand{\maketitle}{%
-  \par\begingroup
-  \thispagestyle{plain}
-  \vbox{\hsize\textwidth \linewidth\hsize
-    \vskip 0.1in
-    \toptitlebar
-    \centering{\LARGE\bf \@title\par}
-    \bottomtitlebar
-    \def\And{\end{tabular}\hfil\linebreak[0]\hfil
-      \begin{tabular}[t]{c}\bf\rule{\z@}{24pt}\ignorespaces}
-    \begin{tabular}[t]{c}\bf\rule{\z@}{24pt}\@author\end{tabular}
-    \vskip 0.3in \@minus 0.1in}
-  \endgroup}
-\renewenvironment{abstract}{%
-  \vskip 0.075in
-  \centerline{\large\bf Abstract}
-  \vspace{0.5ex}
-  \begin{quote}}{\par\end{quote}\vskip 1ex}
-\makeatother
-% ---------------------------------------------------------------------------
 
-\usepackage[utf8]{inputenc}
-\usepackage[T1]{fontenc}
-\usepackage{times}
-\usepackage[numbers,sort&compress]{natbib}
-\usepackage{amsmath,amssymb,amsthm}
-\usepackage{booktabs}
+
+\usepackage{arxiv}
+
+\usepackage[utf8]{inputenc} % allow utf-8 input
+\usepackage[T1]{fontenc}    % use 8-bit T1 fonts
+\usepackage{hyperref}       % hyperlinks
+\usepackage{url}            % simple URL typesetting
+\usepackage{booktabs}       % professional-quality tables
+\usepackage{array}          % ragged-right table columns
+\usepackage{float}          % [H] placement for the glossary table
+\usepackage{amsfonts}       % blackboard math symbols
+\usepackage{amsmath}        % equations
+\usepackage{amssymb}
+\usepackage{amsthm}         % proposition / proof environments
+\usepackage{nicefrac}       % compact symbols for 1/2, etc.
+\usepackage{microtype}      % microtypography
+\usepackage{lipsum}		% Can be removed after putting your text content
 \usepackage{graphicx}
-\usepackage{microtype}
-\usepackage{nicefrac}
-\usepackage{xcolor}
-\usepackage[hidelinks]{hyperref}
-\usepackage{url}
+\usepackage{natbib}
+\usepackage{doi}
 
 \newtheorem{proposition}{Proposition}
-\newtheorem{lemma}{Lemma}
 \newcommand{\1}{\mathbf{1}}
 \newcommand{\E}{\mathbb{E}}
 \newcommand{\RPS}{\mathrm{RPS}}
 
-\title{Forecasting First-Innings Totals in Men's T20 Internationals\\with a Proper Scoring Rule}
+\title{Forecasting first innings totals of Men's T20 International cricket match}
 
-\author{ 
+%\date{September 9, 1985}	% Here you can change the date presented in the paper title
+%\date{} 					% Or removing it
+
+\author{
 {\hspace{1mm}Abhishek Shukla} \\
 	% MA in Statistics\\
 	University of California, Berkeley\\
@@ -90,32 +45,57 @@
 	\texttt{tholee@berkeley.edu} \\
 }
 
-\setlength{\emergencystretch}{2em}
+% Uncomment to remove the date
+%\date{}
+
+% Uncomment to override  the `A preprint' in the header
+\renewcommand{\headeright}{}
+\renewcommand{\undertitle}{}
+\renewcommand{\shorttitle}{Forecasting T20I first innings totals}
+
+%%% Add PDF metadata to help others organize their library
+%%% Once the PDF is generated, you can check the metadata with
+%%% $ pdfinfo template.pdf
+\hypersetup{
+pdftitle={Forecasting first innings totals of Men's T20 International cricket match},
+% pdfsubject={q-bio.NC, q-bio.QM},
+pdfauthor={Abhishek Shukla, Thomas Lee},
+% pdfkeywords={First keyword, Second keyword, More},
+}
+
 \begin{document}
 \maketitle
 
 \begin{abstract}
-We study probabilistic forecasting of the final first-innings total in men's Twenty20 International (T20I) cricket, issued before the first ball and after overs 6, 10 and 15. Ball-by-ball records from Cricsheet let us replay every historical innings and build features using only information available at the moment of the forecast. We score full predictive distributions with the Ranked Probability Score (RPS), which we derive from a sum of Brier scores over over/under thresholds and show to be strictly proper; it is measured in runs. A LightGBM quantile-regression model scores 22.35, 16.20, 12.47 and 8.08 runs of RPS at the four checkpoints on 1{,}479 test matches from 2024 onward, beating a climatological baseline by 16--68\% and a run-rate projection by up to 4.2 runs. To estimate the best achievable score, we compute in-sample ``oracle'' forecasts on binned features, prove that this estimate is biased downward by a factor $(n-1)/n$ in bins of size $n$, and use this to interpret the remaining gap. The model is systematically overconfident: its nominal 90\% intervals cover roughly three quarters of outcomes. Recalibration is therefore the most direct improvement.
+We forecast the final first innings total of a men's Twenty20 International (T20I) cricket match while the innings is in progress: before the first ball and after overs 6, 10 and 15. Using ball-by-ball records from Cricsheet, we replay every historical innings and build features only from information available at the moment of the forecast, covering the state of the innings, the players at the crease and still to come, team strength and the venue. Our forecaster is a Bayesian linear regression for the runs still to be scored. We sample from its posterior and posterior predictive distribution and report the forecast as probabilities over 10-run buckets of the final total, so that uncertainty about the model's parameters is carried into the forecast. Forecasts are evaluated with the Ranked Probability Score, which we derive as a sum of Brier scores over over/under thresholds and show to be strictly proper.
 \end{abstract}
 
+
+% keywords can be removed
+\keywords{Probabilistic forecasting \and Cricket \and Bayesian linear regression \and Proper scoring rules \and Ranked probability score}
+
+
 \section{Introduction}
-A T20 innings lasts at most 120 legal deliveries, and its outcome, the batting side's total, is what broadcasters, bettors and captains reason about while it is being made. The questions they ask are usually thresholds (``will they get past 160?''), so a useful forecast is a full distribution over the total, not a single number, and it should be updated as the innings unfolds. This report addresses the five parts of the assignment in order: the data source (Section~\ref{sec:data}), the prediction outcomes (Section~\ref{sec:outcomes}), the features (Section~\ref{sec:features}), the derivation of a proper scoring rule (Section~\ref{sec:scoring}), and a trial prediction task comparing a learned model against an estimate of the optimal score (Sections~\ref{sec:setup}--\ref{sec:results}).
+T20 matches are the newest and shortest format of cricket played internationally. Cricket has historically been played over multiple innings, sometimes spanning multiple days. In T20 matches this is brought down to 20 overs (120 balls) for each team and a total of two innings per match. This significantly reduces the duration of a game and has over the years led to its increasing popularity among new fans of the game. But unlike many other sports, cricket is prone to being affected by external factors such as rain or bad light, which may interrupt a match. At present, when a match is interrupted, the target is revised with the Duckworth--Lewis--Stern (DLS) method \citep{duckworth1998,stern2016}. DLS is a static method: it uses a parametric model of the batting ``resources'' (overs and wickets) remaining to set a revised target, and it does not adapt to the teams, players or venue involved. In this project, we build a forecasting model, trained on men's T20 international matches, that forecasts the first innings total of an ongoing match at a given stage.
 
-\section{Data source (Q1)}\label{sec:data}
-We use Cricsheet~\citep{cricsheet}, which publishes free, ball-by-ball JSON records for international and domestic cricket. Each match file contains an \texttt{info} block (teams, venue, dates, toss, playing XIs with stable registry IDs, and the outcome) and an \texttt{innings} list in which every delivery records the batter, bowler, non-striker, runs, extras and any wicket. Because every ball is recorded, we can ``forecast the past'' honestly: we replay each historical innings delivery by delivery and compute features using only (i)~the deliveries bowled so far in that innings and (ii)~matches played strictly before that match date.
+In-play forecasting in limited-overs cricket has mostly targeted the match result. \citet{bailey2006} predicted the outcome of One-Day Internationals (ODIs) as the game progresses, \citet{asif2016} developed a dynamic logistic regression for in-play win probabilities in ODIs, and \citet{davis2015} built a ball-by-ball simulator for T20 cricket. We instead forecast a full probability distribution over the first innings total, and we evaluate it with a strictly proper scoring rule \citep{gneiting2007}. Readers unfamiliar with cricket can find a short primer on T20 and its key terms in Appendix~\ref{app:primer}.
 
-\textbf{Scope.} We restrict to men's T20 Internationals (Cricsheet fields \texttt{gender} = \texttt{male} and \texttt{team\_type} = \texttt{international}). We exclude first innings that were rain-reduced or otherwise curtailed, because their totals are not comparable to full 20-over innings, and matches without a first innings. Since the ICC granted T20I status to all its members in 2019, the data contain many matches between associate nations, and the number of matches per year has grown sharply. The test period (2024 onward) has 1{,}479 matches, nearly as many as the 1{,}521 in the whole training period (2022 and earlier).
+\section{Data Source}\label{sec:data}
+Cricsheet \citep{cricsheet} provides freely available structured data for cricket, including ball-by-ball data from international and T20 league cricket matches and an identifier mapping for the people involved in cricket. In this project we focus only on men's international T20 matches. The only limitation in the coverage of this data is the absence of all games played by the Afghanistan team.
 
-\section{Prediction outcomes (Q2)}\label{sec:outcomes}
-The outcome is $Y \in \{0, 1, 2, \dots\}$, the final first-innings total in runs. We forecast it at four \emph{checkpoints} $k \in \{\text{ball 1}, \text{over 6}, \text{over 10}, \text{over 15}\}$: before the first delivery (after the toss and team sheets are known), and at the end of the powerplay, the halfway point and the start of the death overs. Each forecast is a cumulative distribution function $F$ on the integer grid $\{0,\dots,300\}$, with $F(300)=1$.
+Each match file contains an \texttt{info} block, with the teams, venue, dates, toss, playing XIs (identified by stable registry IDs) and result, and an \texttt{innings} list in which every delivery records the batter, bowler, non-striker, runs, extras and any wicket. Because every ball is recorded, we can ``forecast the past'' honestly. We replay each historical innings delivery by delivery and compute features using only (i)~the deliveries bowled so far in that innings and (ii)~matches played strictly before the match date.
 
-The four checkpoints define four prediction tasks of increasing ease with the same outcome. A match contributes a row to a checkpoint only if its first innings reached that point: an innings bowled out in 12.3 overs has no over-15 row. Table~\ref{tab:counts} gives the row counts. We split by match date to prevent future information (form, ratings) from leaking into training.
+We keep matches with \texttt{gender} = \texttt{male} and \texttt{team\_type} = \texttt{international}. We exclude first innings that were reduced by rain or otherwise curtailed, because their totals are not comparable to full 20-over innings, as well as matches with no first innings. Since the ICC granted T20I status to all its member nations in 2019, the data include many matches between associate nations, and the number of matches per year has grown sharply.
 
-\begin{table}[!htbp]
+\section{Prediction}
+
+\subsection{Outcome}
+The outcome is $Y \in \{0, 1, 2, \dots\}$, the final first innings total in runs. We forecast it at four \emph{checkpoints}: before the first delivery (after the toss and team sheets are known), and after overs 6, 10 and 15. These mark the beginning of the match, the end of the powerplay, the halfway point, and the start of the death overs respectively. The checkpoints define four prediction tasks of increasing prior information for the same outcome. A match contributes to a checkpoint only if its first innings reached that point: an innings bowled out in 12.3 overs has no over-15 forecast. Table~\ref{tab:counts} gives the number of innings per checkpoint in each time period (Section~\ref{sec:validation}).
+
+\begin{table}[h]
 \centering
-\caption{Rows per checkpoint and split. Train: matches up to 2022; validation: 2023; test: 2024 onward.}
+\caption{Number of first innings per checkpoint. Train: matches up to 2022; validation: 2023; test: 2024 onward.}
 \label{tab:counts}
-\small
 \begin{tabular}{lrrr}
 \toprule
 Checkpoint & Train & Validation & Test \\
@@ -128,234 +108,265 @@ After over 15 & 1{,}501 & 324 & 1{,}439 \\
 \end{tabular}
 \end{table}
 
-\section{Features (Q3)}\label{sec:features}
-We started from a list of candidate features covering match state, bowling, batting, fielding, venue, recent performance, toss and weather, and kept those that are both predictive in principle and computable point-in-time from Cricsheet. Table~\ref{tab:features} lists the main groups. All historical aggregates use only matches before the forecast date; ratings for teams and venues with little history are shrunk toward the global mean, and the number of prior matches is supplied as a feature so the model can learn how much to trust each rating.
+Each forecast is a probability distribution over the final total, reported in buckets of 10 runs: $B_j = \{10j, \dots, 10j + 9\}$ for $j = 0, \dots, 39$, plus a final bucket $B_{40} = \{400, 401, \dots\}$. The forecast assigns a probability $p_j$ to each bucket, with $\sum_j p_j = 1$.
 
-\begin{table}[!htbp]
+\subsection{Forecasting model: Bayesian linear regression}\label{sec:model}
+At a checkpoint where the batting side has scored $s$ runs, we model the runs still to be scored, $R = Y - s$, rather than the total itself. This lets the model concentrate on what remains uncertain. We fit one model per checkpoint, since both the mean and the spread of the remaining runs change sharply as the innings progresses.
+
+\paragraph{Likelihood and prior.} Let $x_i \in \mathbb{R}^p$ be the feature vector of training innings $i$ (Section~\ref{sec:features}), standardized using training-set means and standard deviations and augmented with an intercept, and let $X$ be the $n \times p$ matrix of these vectors, with $r$ the vector of remaining runs. We assume
+\begin{equation}
+r_i \mid x_i, \beta, \sigma^2 \sim \mathcal{N}(x_i^\top \beta, \sigma^2),
+\end{equation}
+with the conjugate normal--inverse-gamma prior \citep{bishop2006,gelman2013}
+\begin{equation}
+\beta \mid \sigma^2 \sim \mathcal{N}(m_0, \sigma^2 V_0), \qquad \sigma^2 \sim \text{Inv-Gamma}(a_0, b_0).
+\end{equation}
+We center the prior at $m_0 = 0$ with $V_0 = \tau^2 I$, so that $\tau^2$ controls shrinkage of the coefficients (a ridge-type penalty) and is chosen on the validation season. $a_0$ and $b_0$ are small, making the prior on the noise variance weakly informative.
+
+\paragraph{Posterior.} Conjugacy gives the posterior in closed form: $\beta \mid \sigma^2, r \sim \mathcal{N}(m_n, \sigma^2 V_n)$ and $\sigma^2 \mid r \sim \text{Inv-Gamma}(a_n, b_n)$, where
+\begin{equation}
+\begin{aligned}
+V_n &= \big(V_0^{-1} + X^\top X\big)^{-1}, & m_n &= V_n\big(V_0^{-1} m_0 + X^\top r\big), \\
+a_n &= a_0 + \tfrac{n}{2}, & b_n &= b_0 + \tfrac12\big(r^\top r + m_0^\top V_0^{-1} m_0 - m_n^\top V_n^{-1} m_n\big).
+\end{aligned}
+\end{equation}
+
+\paragraph{Sampling the outcome distribution.} For a new innings at the same checkpoint with features $\tilde x$ and current score $s$, we draw $S$ samples. For $k = 1, \dots, S$:
+\begin{enumerate}
+\item draw $\sigma^{2(k)} \sim \text{Inv-Gamma}(a_n, b_n)$ and $\beta^{(k)} \sim \mathcal{N}(m_n, \sigma^{2(k)} V_n)$ from the posterior;
+\item draw the remaining runs $\tilde r^{(k)} \sim \mathcal{N}(\tilde x^\top \beta^{(k)}, \sigma^{2(k)})$ from the likelihood;
+\item set the simulated total $\tilde y^{(k)} = s + \max\big(0, \operatorname{round}(\tilde r^{(k)})\big)$, since a total cannot fall below the current score.
+\end{enumerate}
+The bucket probabilities are the fractions of simulated totals that fall in each bucket:
+\begin{equation}
+\hat p_j = \frac{1}{S} \sum_{k=1}^{S} \1\{\tilde y^{(k)} \in B_j\}, \qquad j = 0, \dots, 40.
+\end{equation}
+Step 1 carries uncertainty about the parameters into the forecast, and step 2 adds the ball-to-ball randomness of the innings. The forecast distribution therefore widens for innings whose features are unlike most of the training data. Without the truncation in step 3, the posterior predictive distribution of $\tilde r$ is available in closed form as a Student-$t$ distribution with $2a_n$ degrees of freedom, location $\tilde x^\top m_n$ and squared scale $\tfrac{b_n}{a_n}(1 + \tilde x^\top V_n \tilde x)$. We use this to check the sampler.
+
+\paragraph{From buckets to a CDF.} To score the forecast with the Ranked Probability Score of Section~\ref{sec:scoring}, which is defined on integer totals, we spread each bucket's probability uniformly over its ten totals. For $t = 0, \dots, 399$ this gives
+\begin{equation}\label{eq:bucketcdf}
+F(t) = \sum_{j < \lfloor t/10 \rfloor} \hat p_j \;+\; \frac{(t \bmod 10) + 1}{10}\, \hat p_{\lfloor t/10 \rfloor},
+\end{equation}
+and $F(400) = 1$.
+
+\paragraph{Limitations of the model.} A Gaussian likelihood is a simplification: remaining runs are nonnegative integers and can be skewed, especially late in the innings when a collapse is possible. Fitting separate models per checkpoint lets the noise variance vary with the stage of the innings, but within a checkpoint the variance is assumed constant. The model is also linear in its features, so nonlinear effects, such as the interaction between wickets in hand and balls remaining, must be supplied as explicit features.
+
+\section{Features}\label{sec:features}
+We started from a list of candidate features covering the match state, bowling, batting, fielding, venue, recent performance, toss and weather. We kept those that are both predictive in principle and computable from Cricsheet at the moment of the forecast (Table~\ref{tab:features}). All historical aggregates use only matches before the forecast date. Ratings for teams and venues with little history are shrunk toward the global mean, and the number of prior matches is included as a feature so the model can learn how much to trust each rating.
+
+\begin{table}[h]
 \centering
-\caption{Feature groups used by the main model (representative names in \texttt{typewriter}).}
+\caption{Feature groups (representative feature names in \texttt{typewriter} font).}
 \label{tab:features}
 \small
-\begin{tabular}{p{0.19\linewidth}p{0.74\linewidth}}
+\begin{tabular}{>{\raggedright\arraybackslash}p{0.2\linewidth}>{\raggedright\arraybackslash}p{0.73\linewidth}}
 \toprule
 Group & Features \\
 \midrule
-Match state & \texttt{score}, \texttt{wickets}, balls remaining, \texttt{run\_rate\_last\_5}, partnership; fixed per checkpoint, so the over is implicit \\
-Batters at crease & \texttt{striker\_runs}, \texttt{striker\_strike\_rate}, and career T20I average and strike rate for striker and non-striker \\
-Batting resources & \texttt{remaining\_batting\_order\_sr}, \texttt{remaining\_batting\_order\_avg}: career T20I strength of batters yet to bat (the whole XI before ball 1) \\
-Bowling resources & \texttt{remaining\_bowling\_economy\_weighted}: career economy of the bowling side weighted by each bowler's remaining overs (maximum four per bowler) \\
-Team strength & Point-in-time Elo~\citep{elo1978} for both sides and their difference, with match counts; recent batting and bowling form (exponentially weighted), team tier \\
-Venue & \texttt{venue\_avg\_first\_innings\_score} (shrunk toward the global mean), \texttt{venue\_n\_prior\_matches}, \texttt{home\_away} \\
+Match state & \texttt{score}, \texttt{wickets}, balls remaining, \texttt{run\_rate\_last\_5}, current partnership. The over is fixed at each checkpoint. \\
+Batters at the crease & Runs and strike rate so far in this innings, and career T20I average and strike rate, for the striker and non-striker. \\
+Batting resources & \texttt{remaining\_batting\_order\_sr}, \texttt{remaining\_batting\_order\_avg}: career T20I strength of the batters yet to bat (the whole XI before ball 1). \\
+Bowling resources & \texttt{remaining\_bowling\_economy\_weighted}: career economy rates of the bowling side, weighted by each bowler's remaining overs (at most four per bowler). \\
+Team strength & Point-in-time Elo ratings \citep{elo1978} for both sides and their difference, with match counts; recent batting and bowling form (exponentially weighted); team tier (ICC full member or associate). \\
+Venue & \texttt{venue\_avg\_first\_innings\_score} (shrunk toward the global mean), \texttt{venue\_n\_prior\_matches}, and whether the batting side is at home, away or at a neutral venue. \\
 \bottomrule
 \end{tabular}
 \end{table}
 
-\textbf{Excluded features.} Head-to-head records were dropped: most pairings of teams have too few past meetings for a stable estimate. Toss-based win records were dropped because they measure match outcomes, not first-innings totals. Boundaries and extras so far are already contained in the score. Weather, dew, day/night scheduling and pitch reports are plausibly important but are not in Cricsheet; we return to them in Section~\ref{sec:improve}.
+\paragraph{Excluded features.} We dropped head-to-head records, since most pairs of teams have met too few times for a stable estimate. We dropped toss-based win records, because they measure match results rather than first innings totals. Boundaries and extras so far are already included in the score. Weather, dew, day/night scheduling and pitch reports are plausibly important but are not in Cricsheet.
 
-\section{Scoring rule (Q4)}\label{sec:scoring}
+\section{Validation}\label{sec:validation}
+We evaluate forecasts by backtesting on data split by match date: innings from 2022 and earlier are used for training, 2023 for validation (choosing the prior scale $\tau^2$), and 2024 onward for testing. A random split would let information from later matches, such as a team's form or a player's rating, leak into the training set. For the same reason, every feature is computed only from matches before the forecast date, and we test this directly: the features for a match on date $D$ must be unchanged when all matches on or after $D$ are deleted from the history.
 
-\paragraph{Motivation.} A forecast of a total is used to answer threshold questions: will the team score at most $t$ runs? For a single threshold, the natural score is the Brier score~\citep{brier1950} of the binary event $\{Y \le t\}$, whose forecast probability is $F(t)$. Summing over all thresholds gives the Ranked Probability Score~\citep{epstein1969}, the discrete form of the continuous ranked probability score~\citep{matheson1976,gneiting2007}:
+\subsection{Scoring Rule}\label{sec:scoring}
+A forecast of a total is used to answer threshold questions: will the team score at most $t$ runs? For a single threshold, the natural score is the Brier score \citep{brier1950} of the binary event $\{Y \le t\}$, whose forecast probability is $F(t)$. Summing over all thresholds gives the Ranked Probability Score \citep{epstein1969}, the discrete form of the continuous ranked probability score \citep{matheson1976,gneiting2007}:
 \begin{equation}\label{eq:rps}
-\RPS(F, y) = \sum_{t=0}^{T} \big(F(t) - \1\{y \le t\}\big)^2, \qquad T = 300.
+\RPS(F, y) = \sum_{t=0}^{T} \big(F(t) - \1\{y \le t\}\big)^2, \qquad T = 400.
 \end{equation}
-Lower is better. If $F$ is a point mass at $\hat y$, then $\RPS(F,y) = |\hat y - y|$, so the score is measured in runs and generalizes absolute error to distributions.
+Lower is better. If $F$ is a point mass at $\hat y$, then $\RPS(F, y) = |\hat y - y|$, so the score is measured in runs and generalizes absolute error to distributions. For our bucketed forecasts, $F$ is given by Eq.~\eqref{eq:bucketcdf}.
 
 \begin{proposition}[Strict propriety]
-Let $Y \sim G$. Then $\E_{Y\sim G}\,\RPS(F,Y)$ is uniquely minimized over CDFs on $\{0,\dots,T\}$ by $F = G$ on $\{0,\dots,T\}$.
+Let $Y \sim G$. Then $\E_{Y \sim G}\,\RPS(F, Y)$ is uniquely minimized over CDFs on $\{0, \dots, T\}$ by $F = G$ on $\{0, \dots, T\}$.
 \end{proposition}
 \begin{proof}
-Fix $t$ and write $Z_t = \1\{Y \le t\}$, a Bernoulli variable with mean $G(t)$ and variance $G(t)(1-G(t))$. Then
-$\E\,(F(t) - Z_t)^2 = (F(t) - G(t))^2 + \mathrm{Var}(Z_t)$. Summing over $t$,
+Fix $t$ and write $Z_t = \1\{Y \le t\}$, a Bernoulli variable with mean $G(t)$ and variance $G(t)(1 - G(t))$. Then $\E\,(F(t) - Z_t)^2 = (F(t) - G(t))^2 + \mathrm{Var}(Z_t)$. Summing over $t$,
 \begin{equation}\label{eq:decomp}
-\E_{Y\sim G}\,\RPS(F,Y) = \sum_{t=0}^{T} \big(F(t) - G(t)\big)^2 \;+\; \sum_{t=0}^{T} G(t)\big(1 - G(t)\big).
+\E_{Y \sim G}\,\RPS(F, Y) = \sum_{t=0}^{T} \big(F(t) - G(t)\big)^2 \;+\; \sum_{t=0}^{T} G(t)\big(1 - G(t)\big).
 \end{equation}
 The second sum does not depend on $F$, and the first is nonnegative and equals zero if and only if $F(t) = G(t)$ for every $t$.
 \end{proof}
 
-A forecaster who believes $G$ therefore has no incentive to report anything else, which is the property we need to compare forecasters honestly. We prefer RPS to the logarithmic score for three reasons. It rewards being close: forecasting 170 when the outcome is 172 scores far better than forecasting 220, whereas the log score depends only on the probability assigned to exactly 172. It is bounded, so one surprising total does not dominate the average. It is in runs, which is easy to interpret. We report the mean RPS over test innings with 95\% bootstrap confidence intervals, and the skill score $1 - \overline{\RPS}/\overline{\RPS}_{\text{clim}}$ relative to climatology. A few associate-nation totals exceed 300; every forecast then incurs a small penalty at $t=300$. This is a property of the truncated grid, not of the rule, and it affects all forecasters equally.
+A forecaster who believes $G$ therefore has no incentive to report anything else, which is the property we need to compare forecasters honestly. We prefer RPS to the logarithmic score for three reasons. It rewards being close: forecasting 170 when the outcome is 172 scores far better than forecasting 220, whereas the log score depends only on the probability assigned to exactly 172. It is bounded, so one surprising total does not dominate the average. And it is measured in runs, which is easy to interpret. We report the mean RPS over test innings and the skill score $1 - \overline{\RPS} / \overline{\RPS}_{\text{clim}}$ relative to a climatological forecast that assigns every innings the empirical distribution of training totals. We set $T = 400$, above the highest first innings total in our data, so no outcome falls beyond the grid. A total above 400 would incur a small penalty at $t = 400$ under every forecast; this would be a property of the truncated grid, not of the rule, and would affect all forecasters equally.
 
-\section{Trial prediction task (Q5)}\label{sec:setup}
+\subsection{Log Score and Squared Error}\label{sec:otherscores}
+We also report two familiar scores, one for the bucket probabilities and one for a single best estimate.
 
-\paragraph{Forecasters.} All forecasters output a CDF on $\{0,\dots,300\}$ at each checkpoint.
-\begin{enumerate}
-\item \textbf{Climatology:} the empirical distribution of training totals, the same for every innings.
-\item \textbf{Run-rate projection:} current score plus current run rate $\times$ overs remaining, with the empirical distribution of training residuals at that checkpoint added around it. Before ball 1 the run rate is undefined and falls back to the global mean, so this forecaster coincides with climatology.
-\item \textbf{Main model:} gradient-boosted quantile regression~\citep{koenker1978,ke2017} predicting the \emph{remaining} runs $Y - \text{score}$ at 19 quantile levels $\tau \in \{0.05, 0.10, \dots, 0.95\}$, one LightGBM model per level and checkpoint. Quantiles are sorted per row to remove crossing, shifted by the current score, and linearly interpolated to a CDF anchored at $F(0)=0$ and $F(300)=1$.
-\item \textbf{Oracles L1--L3:} empirical distributions of $Y$ within bins of the \emph{test} set itself (Section~\ref{sec:oracle}).
-\end{enumerate}
+\paragraph{Log score and cross-entropy.} The logarithmic score \citep{gneiting2007} of a bucketed forecast is the negative log probability of the bucket that occurs,
+\begin{equation}\label{eq:log}
+\mathrm{LS}(p, y) = -\log p_{j(y)}, \qquad j(y) = \min\big(\lfloor y/10 \rfloor, 40\big),
+\end{equation}
+measured in nats. Averaged over innings, it is the negative log-likelihood of the observed buckets under the forecasts. If the true bucket probabilities are $g = (g_0, \dots, g_{40})$, the expected log score is the \emph{cross-entropy} of $p$ relative to $g$, which splits into the Shannon entropy of $g$ and the Kullback--Leibler (KL) divergence from $g$ to $p$:
+\begin{equation}\label{eq:crossent}
+\E_{Y \sim G}\,\mathrm{LS}(p, Y) = -\sum_{j} g_j \log p_j = \underbrace{-\sum_{j} g_j \log g_j}_{H(g)} \;+\; \underbrace{\sum_{j} g_j \log \frac{g_j}{p_j}}_{\mathrm{KL}(g \,\|\, p)}.
+\end{equation}
+The entropy $H(g)$ does not depend on the forecast, and $\mathrm{KL}(g \,\|\, p) \ge 0$ with equality if and only if $p = g$ (Gibbs' inequality), so the log score is strictly proper on buckets. Unlike RPS, it is unbounded: a forecast that gives the realized bucket a probability near zero receives a very large penalty, and a probability of exactly zero gives an infinite score. A forecaster scored this way must give every bucket that can occur positive probability.
 
-\paragraph{Tuning.} For each checkpoint, we chose \texttt{num\_leaves}, \texttt{learning\_rate}, \texttt{n\_estimators} and \texttt{min\_child\_samples} from a four-point grid by mean validation RPS, then fit on the training set only. The same configuration won at every checkpoint (15 leaves, learning rate 0.05, 200 trees, at least 20 samples per leaf), with validation RPS of 21.80, 16.67, 12.79 and 8.19. The largest configuration (63 leaves) was worst everywhere.
+\paragraph{Squared error for the best estimate.} The regression part of the forecast is a single best estimate $\hat y$ of the total. We score it by the squared error $(y - \hat y)^2$ and report its mean over test innings (MSE). If $Y \sim G$ has mean $\mu_G$ and variance $\mathrm{Var}_G(Y)$, then
+\begin{equation}\label{eq:se}
+\E_{Y \sim G}\,(Y - \hat y)^2 = (\hat y - \mu_G)^2 + \mathrm{Var}_G(Y),
+\end{equation}
+so the expected squared error is minimized by the mean $\hat y = \mu_G$. It is a proper score for the mean, but it ignores the rest of the forecast distribution. By contrast, RPS scores a point forecast by its absolute error, which the median minimizes.
 
-\paragraph{Implementation.} The pipeline is written in Python. One feature function, \texttt{compute\_\allowbreak features}, takes the deliveries so far, the match information and the prior match history, and is used both to replay historical innings for training and, in future, to process a live ball-by-ball feed, so features cannot drift between training and deployment. A leakage test checks that the features for a match on date $D$ are unchanged when all matches on or after $D$ are deleted from the history. RPS is implemented exactly as in Eq.~\eqref{eq:rps}, with unit tests confirming that a point mass at $y$ scores 0 and a point mass at $y+k$ scores $k$. The entire experiment, including tuning, bootstrap intervals and figures, runs with one command, \texttt{python -m src.experiments.q5}.
+\section{Trial Prediction}\label{sec:trial}
+\subsection{Optimal Score}\label{sec:optimal}
+Eqs.~\eqref{eq:decomp}, \eqref{eq:crossent} and \eqref{eq:se} share one structure \citep{gneiting2007}. The expected score of a forecast is an \emph{entropy} term, which depends only on the true distribution $G$, plus a \emph{divergence} term, which is nonnegative and zero only for the ideal forecast:
+\begin{equation}\label{eq:entdiv}
+\E_{Y \sim G}\, S(F, Y) = H_S(G) + d_S(F, G).
+\end{equation}
+Table~\ref{tab:entropy} lists the pairs for our three scores. The entropy $H_S(G) = \E_{Y \sim G}\, S(G, Y)$ is the expected score of a forecaster who knows $G$ exactly, so it is the optimal score. It is not zero. For RPS, each threshold $t$ is a Bernoulli event $\{Y \le t\}$ that contributes its variance $G(t)(1 - G(t))$ even to the perfect forecast, and this term is positive at every $t$ from the lowest possible total up to, but not including, the highest. Likewise $H(g) > 0$ unless one bucket is certain, and $\mathrm{Var}_G(Y) > 0$ unless the total is. Only a forecaster facing a certain outcome can have an expected score of zero.
 
-\begin{table}[tp]
+\begin{table}[h]
 \centering
-\caption{Mean test RPS in runs (lower is better), with 95\% bootstrap intervals, and skill relative to climatology. Oracles are fit in-sample on the test set and are not deployable forecasters. Bold: best deployable forecaster.}
-\label{tab:main}
-\footnotesize
-\setlength{\tabcolsep}{3.5pt}
+\caption{Entropy (optimal expected score) and divergence (excess over the optimum) of each score, for a forecast $F$ with bucket probabilities $p$ and best estimate $\hat y$, when $Y \sim G$ with bucket probabilities $g$.}
+\label{tab:entropy}
+\begin{tabular}{llll}
+\toprule
+Score & $S(F, y)$ & Entropy $H_S(G)$ (optimum) & Divergence $d_S(F, G)$ \\
+\midrule
+RPS & $\sum_t \big(F(t) - \1\{y \le t\}\big)^2$ & $\sum_t G(t)\big(1 - G(t)\big)$ & $\sum_t \big(F(t) - G(t)\big)^2$ \\
+Log score & $-\log p_{j(y)}$ & $H(g) = -\sum_j g_j \log g_j$ & $\mathrm{KL}(g \,\|\, p)$ \\
+Squared error & $(y - \hat y)^2$ & $\mathrm{Var}_G(Y)$ & $(\hat y - \mu_G)^2$ \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\paragraph{Conditioning on features.} At a checkpoint the forecaster knows the features $x$, so the relevant truth is the conditional distribution $G(\cdot \mid x)$, and the best achievable average score is the Bayes risk $R_S^* = \E_X\, H_S\big(G(\cdot \mid X)\big)$. More information cannot increase it. Each entropy is a minimum of functions that are linear in $G$, $H_S(G) = \min_F \E_{Y \sim G}\, S(F, Y)$, so it is concave. Since $G = \E_X\, G(\cdot \mid X)$, Jensen's inequality gives
+\begin{equation}\label{eq:jensen}
+R_S^* = \E_X\, H_S\big(G(\cdot \mid X)\big) \;\le\; H_S\big(\E_X\, G(\cdot \mid X)\big) = H_S(G).
+\end{equation}
+The gap $H_S(G) - R_S^*$ is the value of the features. $R_S^*$ itself is the randomness in the rest of the innings that no forecaster using these features can remove.
+
+\paragraph{Estimating the optimum.} $G(\cdot \mid x)$ is unknown, so $R_S^*$ cannot be computed exactly. We report two estimates in Section~\ref{sec:demo}.
+\begin{enumerate}
+\item \emph{No features.} Plugging the empirical distribution of the test totals into $H_S$ gives the optimal score of a forecaster that gives every innings the same distribution, even one that knew the test-period distribution in advance. By Eq.~\eqref{eq:jensen}, it is an upper bound on $R_S^*$, up to sampling error.
+\item \emph{Model-implied.} If the Bayesian model's forecast $\hat F_i$ for test innings $i$ were the truth, its expected score would be $H_S(\hat F_i)$. The average $\frac1n \sum_i H_S(\hat F_i)$ over test innings is therefore the model's own estimate of $R_S^*$. For RPS we use the bucketed CDF of Eq.~\eqref{eq:bucketcdf}, and for squared error we use the predictive variance of $s + \tilde r$, before rounding and truncation.
+\end{enumerate}
+If the model is correct, its realized mean score should match estimate 2 up to sampling error. A realized score above it means that the forecasts are too narrow or biased, and a realized score below it means that they are too wide.
+
+\subsection{Demo}\label{sec:demo}
+\paragraph{Setup.} We fit the model of Section~\ref{sec:model} separately at each checkpoint on the training innings, with the features of Table~\ref{tab:features}: \texttt{score}, \texttt{wickets}, \texttt{run\_rate\_last\_5} and the current partnership; the runs, strike rate and career T20I average and strike rate of both batters at the crease; the batting and bowling resources; both Elo ratings, their difference and both match counts; both teams' recent form; the venue average and number of prior matches; and one-hot indicators for the two team tiers and for home, away or neutral. Features that are constant or missing at a checkpoint drop out: balls remaining at every checkpoint, and the in-play features before ball 1. This leaves 19 features before ball 1 and 31 afterward. Other missing values, mostly career statistics of batters with no previous T20I (6--9\% of batters at the crease), are set to the training mean. The Elo difference is collinear with the two ratings, and the one-hot indicators with the intercept, but the prior keeps the posterior proper. We set $a_0 = b_0 = 0.01$ and choose $\tau^2 \in \{10^{-3}, 10^{-2}, \dots, 10\}$ by mean validation RPS. The value $\tau^2 = 0.1$ is chosen at every checkpoint. With about 1{,}500 training innings, the Student-$t$ predictive has $2a_n \approx 1{,}500$ degrees of freedom and is essentially normal. The experiment is reproduced by \texttt{python -m src.experiments.blr}.
+
+\paragraph{From the Student-$t$ to bucket probabilities.} Rather than sampling, we compute the bucket probabilities exactly. The rounding and truncation in step 3 of Section~\ref{sec:model} are a fixed function of $\tilde r$, and since $t - s \ge 0$, $\max\big(0, \operatorname{round}(\tilde r)\big) \le t - s$ if and only if $\tilde r < t - s + \tfrac12$. So for integer $t \ge s$,
+\begin{equation}\label{eq:tcdf}
+P(\tilde Y \le t) = T_{2a_n}\!\left(\frac{t + \tfrac12 - s - \tilde x^\top m_n}{\tilde\sigma}\right), \qquad \tilde\sigma^2 = \frac{b_n}{a_n}\big(1 + \tilde x^\top V_n \tilde x\big),
+\end{equation}
+and $P(\tilde Y \le t) = 0$ for $t < s$, where $T_\nu$ is the Student-$t$ CDF with $\nu$ degrees of freedom. The bucket probabilities are $\hat p_j = P(\tilde Y \le 10j + 9) - P(\tilde Y \le 10j - 1)$ for $j = 0, \dots, 39$, and $\hat p_{40} = 1 - P(\tilde Y \le 399)$. This is the limit of the sampler as $S \to \infty$. In a unit test on synthetic data, the two agree to within 0.005 in every bucket with $S = 400{,}000$ draws, including a case where the truncation at $s$ matters. Every bucket the total can still reach receives positive probability, as the log score requires.
+
+\paragraph{Best estimate.} The best estimate is $\hat y = s + \tilde x^\top m_n$, the predictive mean of $s + \tilde r$ before rounding and truncation, which (up to that approximation) minimizes the expected squared error by Eq.~\eqref{eq:se}. We report it together with its bucket $B_{j(\operatorname{round}(\hat y))}$ and that bucket's probability. Because the Student-$t$ is symmetric and unimodal, the bucket containing the rounded mean is also the most probable bucket, apart from the truncation at $s$.
+
+\paragraph{Worked example.} Figure~\ref{fig:demo} shows the forecasts for the final of the 2024 ICC Men's T20 World Cup between India and South Africa at Kensington Oval, Bridgetown, a match in the test period. India batted first and made 176/7. Before ball 1 the best estimate is 178, in the 170--179 bucket, which the model gives probability 0.11. India lost three wickets in the powerplay and were 45/3 after six overs. The estimate fell to 164 (bucket 160--169, probability 0.15), and the bucket of the actual total kept probability 0.14. After ten overs (75/3) the estimate was 169, and after fifteen overs (118/4) it was 171, back in the 170--179 bucket, now with probability 0.28. The distribution narrows as the innings progresses and fewer runs remain uncertain.
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=0.9\linewidth]{figs/blr_demo.png}
+\caption{Bucket probabilities of the Bayesian linear regression for India's innings in the 2024 T20 World Cup final, at each checkpoint. The dark bar is the bucket of the best estimate $\hat y$, and the dashed line is the actual total of 176.}
+\label{fig:demo}
+\end{figure}
+
+\paragraph{Test results.} Table~\ref{tab:demo} summarizes the forecasts for all test innings. The model beats climatology in RPS by 20\% before ball 1 and by 70\% after over 15. Features lower the optimal score sharply: before ball 1, the model-implied optimal RPS is 20.2 runs, against 26.3 for the best forecast without features, and after over 15 it is 8.1 against 25.0. The optimum is still far from zero. Even after 15 overs, the model expects a perfect forecaster to score about 8 runs of RPS, with a root mean squared error of about 14 runs, because the last five overs remain genuinely uncertain.
+
+\begin{table}[t]
+\centering
+\caption{Test performance of the Bayesian linear regression (BLR) and estimates of the optimal score (Section~\ref{sec:optimal}). Lower is better for RPS, log score and MSE. RPS is shown $\pm$ one standard error. ``No features'' is the entropy of the empirical distribution of test totals. ``Model-implied'' is the expected score if the BLR forecasts were the truth. Climatology is bucketed like the BLR forecasts.}
+\label{tab:demo}
+\small
 \begin{tabular}{lcccc}
 \toprule
-Forecaster & Before ball 1 & After over 6 & After over 10 & After over 15 \\
+ & Before ball 1 & After over 6 & After over 10 & After over 15 \\
 \midrule
-Climatology & 26.52 {\scriptsize[25.38, 27.64]} & 26.52 {\scriptsize[25.38, 27.64]} & 26.41 {\scriptsize[25.30, 27.52]} & 25.17 {\scriptsize[24.14, 26.27]} \\
-Run-rate projection & 26.52 {\scriptsize[25.38, 27.64]} & 19.06 {\scriptsize[18.33, 19.78]} & 13.55 {\scriptsize[13.06, 14.11]} & 8.17 {\scriptsize[7.87, 8.47]} \\
-Main model & \textbf{22.35} {\scriptsize[21.40, 23.30]} & \textbf{16.20} {\scriptsize[15.54, 16.85]} & \textbf{12.47} {\scriptsize[12.00, 12.99]} & \textbf{8.08} {\scriptsize[7.78, 8.39]} \\
+\multicolumn{5}{l}{\emph{RPS (runs)}} \\
+\quad Climatology & 26.56 & 26.56 & 26.46 & 25.21 \\
+\quad BLR & 21.27 {\scriptsize $\pm$ 0.44} & 15.17 {\scriptsize $\pm$ 0.31} & 11.85 {\scriptsize $\pm$ 0.23} & 7.63 {\scriptsize $\pm$ 0.14} \\
+\quad Skill vs.\ climatology & 0.20 & 0.43 & 0.55 & 0.70 \\
+\quad Optimum, no features & 26.29 & 26.29 & 26.20 & 25.01 \\
+\quad Optimum, model-implied & 20.16 & 15.26 & 12.43 & 8.12 \\
 \midrule
-Oracle L1 & 26.24 {\scriptsize[25.19, 27.27]} & 23.50 {\scriptsize[22.57, 24.39]} & 21.29 {\scriptsize[20.48, 22.12]} & 19.92 {\scriptsize[19.10, 20.74]} \\
-Oracle L2 & 26.24 {\scriptsize[25.19, 27.27]} & 17.33 {\scriptsize[16.70, 17.94]} & 12.93 {\scriptsize[12.46, 13.48]} & 8.36 {\scriptsize[8.06, 8.70]} \\
-Oracle L3 & 25.28 {\scriptsize[24.27, 26.30]} & 15.51 {\scriptsize[14.90, 16.14]} & 11.22 {\scriptsize[10.78, 11.68]} & 6.78 {\scriptsize[6.52, 7.07]} \\
+\multicolumn{5}{l}{\emph{Log score (nats)}} \\
+\quad BLR & 2.76 & 2.42 & 2.17 & 1.73 \\
+\quad Optimum, no features & 2.95 & 2.95 & 2.94 & 2.90 \\
+\quad Optimum, model-implied & 2.69 & 2.41 & 2.20 & 1.76 \\
 \midrule
-\multicolumn{5}{l}{\emph{Skill vs.\ climatology}} \\
-Run-rate projection & 0.00 & 0.28 & 0.49 & 0.68 \\
-Main model & \textbf{0.16} & \textbf{0.39} & \textbf{0.53} & \textbf{0.68} \\
-Oracle L3 & 0.05 & 0.42 & 0.58 & 0.73 \\
+\multicolumn{5}{l}{\emph{MSE of the best estimate (runs$^2$)}} \\
+\quad BLR & 1{,}451 & 741 & 448 & 182 \\
+\quad Optimum, no features & 2{,}210 & 2{,}210 & 2{,}193 & 1{,}993 \\
+\quad Optimum, model-implied & 1{,}261 & 716 & 471 & 193 \\
+\midrule
+\multicolumn{5}{l}{\emph{Best estimate and calibration}} \\
+\quad Mean error $y - \hat y$ (runs) & $+4.3$ & $+0.7$ & $-1.1$ & $-0.9$ \\
+\quad Bucket of $\hat y$ contains $y$ & 0.11 & 0.16 & 0.19 & 0.27 \\
+\quad \quad model-implied & 0.11 & 0.15 & 0.18 & 0.28 \\
+\quad Coverage of central 90\% interval & 0.88 & 0.90 & 0.91 & 0.92 \\
 \bottomrule
 \end{tabular}
 \end{table}
 
-\begin{figure}[tp]
+\paragraph{Distance to the optimum.} Before ball 1, the realized scores exceed the model-implied optimum for all three scores (RPS 21.3 against 20.2, MSE 1{,}451 against 1{,}261), and the model underpredicts test totals by 4.3 runs on average. The average test total is not higher than in training, because the test period has more associate matches, but teams of the same tier scored more: full members averaged 175 runs against 162 in training, and associates 144 against 141. The pre-match features cannot see this shift. About 1 run of the gap comes from the prior shrinking the intercept toward zero, since $V_0 = \tau^2 I$ also covers the intercept. Once the current score is known, it absorbs most of this shift. From over 6 onward, the realized scores are within 7\% of the model-implied values, and after overs 10 and 15 they are slightly below them. The forecasts are then, if anything, slightly too wide, and their central 90\% intervals cover 91--92\% of test totals.
+
+\paragraph{Best estimate and log score.} The bucket of the best estimate contains the actual total in 11\% of test innings before ball 1 and 27\% after over 15, matching the model's own expectation. A 10-run bucket is narrow compared with the forecast error (a root mean squared error of 38 runs before ball 1), so the bucket probabilities carry more information than the single best estimate. The log score shows why a bounded score is safer. Fifteen test totals exceed the highest training total of 263. The empirical climatology gives their buckets probability zero, so its log score is infinite, and Table~\ref{tab:demo} reports none. The Student-$t$ forecasts give every reachable bucket positive probability, but a single surprising innings still costs up to 12.6 nats, about five times the average.
+
+% \begin{figure}
+% 	\centering
+% 	\fbox{\rule[-.5cm]{4cm}{4cm} \rule[-.5cm]{4cm}{0cm}}
+% 	\caption{Sample figure caption.}
+% 	\label{fig:fig1}
+% \end{figure}
+
+
+
+
+\bibliographystyle{unsrtnat}
+\bibliography{references}  %%% Uncomment this line and comment out the ``thebibliography'' section below to use the external .bib file (using bibtex) .
+
+
+\appendix
+\section{A short primer on T20 cricket}\label{app:primer}
+
+\paragraph{The format.} A T20 match is played between two teams of eleven players. Each team bats once, in an \emph{innings} (the word is both singular and plural in cricket), of at most 20 \emph{overs}. An over is six legal deliveries bowled by one bowler, so an innings has at most 120 legal balls. The team batting first sets a total. The team batting second then \emph{chases} a \emph{target} of that total plus one run, and wins if it reaches the target before its innings ends. An innings ends when its overs run out or when the batting side loses ten \emph{wickets} (is \emph{all out}), because batters play in pairs and one of the eleven is always left without a partner. A coin toss before the match decides which captain chooses whether to bat or bowl first.
+
+\paragraph{Scoring runs.} Two batters are on the field at once: the \emph{striker} faces the delivery and the \emph{non-striker} waits at the bowler's end. Batters score by running between the wickets, or by hitting a \emph{boundary}: four runs if the ball reaches the rope after touching the ground, six if it clears the rope on the full. The bowling side can also concede \emph{extras}. A \emph{wide} (a delivery out of the batter's reach) and a \emph{no-ball} (usually a bowler overstepping the crease) each give one run to the batting side and must be bowled again. In T20 internationals, the delivery after any no-ball is a \emph{free hit}, from which the batter cannot be out in most ways. \emph{Byes} and \emph{leg byes} are runs taken when the ball has not touched the bat.
+
+\paragraph{Wickets.} A batter is dismissed (a wicket falls) most often by being \emph{bowled} (the ball hits the stumps), \emph{caught} (a fielder catches the ball before it touches the ground), \emph{leg before wicket} (lbw), \emph{run out} or \emph{stumped}. The next batter in the \emph{batting order} then comes in. The runs scored by two batters while batting together are their \emph{partnership}.
+
+\paragraph{Constraints that shape an innings.} Each bowler may bowl at most four overs, so a team needs at least five bowlers and must use some weaker ones. During the \emph{powerplay} (overs 1--6), at most two fielders may be outside a 30-yard circle, which makes attacking shots less risky. From over 7 onward, up to five fielders may be outside the circle. The \emph{middle overs} (7--15) are usually a consolidation phase, and in the \emph{death overs} (16--20) batters take the most risk. The final total therefore depends on two resources that trade off against each other: balls remaining and wickets in hand.
+
+\paragraph{Interrupted matches and ties.} When rain or bad light shortens a match, the overs are reduced and the target is revised with the DLS method \citep{duckworth1998,stern2016}. We exclude such first innings (Section~\ref{sec:data}). A tied T20I is usually decided by a \emph{super over}, a one-over innings for each side.
+
+\paragraph{Teams.} The International Cricket Council (ICC) has 12 \emph{full members}, such as India, Australia and England, and many \emph{associate members}. Since 2019 all members' matches against each other have T20I status, so the data mix strong full-member sides with emerging associate teams, and the gap in their scoring is large.
+
+\begin{table}[H]
 \centering
-\includegraphics[width=0.7\linewidth]{figs/rps_vs_checkpoint.png}
-\caption{Mean test RPS by checkpoint with 95\% bootstrap intervals.}
-\label{fig:rps}
-\end{figure}
-
-\subsection{Q5.1: The optimal score given the features}\label{sec:oracle}
-Let $X$ denote the information available at a checkpoint and $G(\cdot \mid X)$ the true conditional distribution of $Y$. By Eq.~\eqref{eq:decomp}, the best any forecaster using $X$ can do is to report $G(\cdot\mid X)$, which attains the \emph{Bayes risk}
-\begin{equation}
-R^*(X) = \E_X \Big[ \sum_{t} G(t\mid X)\big(1 - G(t\mid X)\big) \Big].
-\end{equation}
-This is the optimal score for the features at hand. Two facts guide how we estimate it.
-
-\textbf{More information never hurts.} If $A$ is a function of $X$ (a coarsening), then $R^*(X) \le R^*(A)$: since $G(t\mid A) = \E[G(t\mid X)\mid A]$ and $x \mapsto x(1-x)$ is concave, Jensen's inequality gives $\E[G(t\mid X)(1-G(t\mid X))] \le \E[G(t\mid A)(1-G(t\mid A))]$ for each $t$.
-
-\textbf{Estimating it with known outcomes.} Because we know the test outcomes, we can estimate $R^*(A)$ for a coarse $A$ directly: partition the test rows into bins by $A$, use the empirical distribution of $Y$ within each bin as the forecast, and score it on the same rows. We use three levels: L1 bins on (over, wickets); L2 adds the score in 20-run buckets; L3 uses 10-run buckets and adds the batting team's tier. This in-sample estimate is optimistic, by an amount we can compute exactly:
-
-\begin{lemma}[In-sample bias]\label{lem:bias}
-In a bin of $n$ i.i.d.\ outcomes with true CDF $G$, the in-sample RPS of the empirical CDF $\hat G$ equals $\sum_t \hat G(t)(1-\hat G(t))$, and its expectation is $\frac{n-1}{n}\sum_t G(t)(1-G(t))$.
-\end{lemma}
-\begin{proof}
-With $Z_{it} = \1\{y_i \le t\}$ and $\hat G(t) = \frac1n\sum_i Z_{it}$, we get $\frac1n\sum_i (\hat G(t) - Z_{it})^2 = \hat G(t) - \hat G(t)^2$ because $Z_{it}^2 = Z_{it}$. Then $\E[\hat G(t)^2] = G(t)^2 + G(t)(1-G(t))/n$, so $\E[\hat G(t)(1-\hat G(t))] = (1 - \tfrac1n)\,G(t)(1-G(t))$.
-\end{proof}
-
-So a bin of size 1 always scores 0, and a bin of size 3 scores on average two thirds of its true Bayes risk. Table~\ref{tab:bins} shows why this matters: at over 15, L3 splits 1{,}439 rows into 202 bins with a median size of 3, so its score of 6.78 is substantially optimistic. L1 has large bins and a negligible bias, but it conditions on so little that its Bayes risk is far above that of the richer feature set. An unbiased estimate of each level's Bayes risk rescales every bin with $n \ge 2$ by $n/(n-1)$. The true optimum for the model's features, $R^*(X)$, lies below the population value of $R^*(\text{L2})$, since L2's bins are functions of the model's inputs.
-
-\begin{table}[!htbp]
-\centering
-\caption{Oracle binning: number of bins and median bin size on the test set.}
-\label{tab:bins}
+\caption{Key terms and statistics used in this report.}
+\label{tab:glossary}
 \small
-\begin{tabular}{lrrrrrr}
+\begin{tabular}{>{\raggedright\arraybackslash}p{0.24\linewidth}>{\raggedright\arraybackslash}p{0.68\linewidth}}
 \toprule
- & \multicolumn{2}{c}{L1: over, wickets} & \multicolumn{2}{c}{L2: + score/20} & \multicolumn{2}{c}{L3: + score/10, tier} \\
-\cmidrule(lr){2-3}\cmidrule(lr){4-5}\cmidrule(lr){6-7}
-Checkpoint & Bins & Median size & Bins & Median size & Bins & Median size \\
+Term & Meaning \\
 \midrule
-Before ball 1 & 1  & 1{,}479 & 1  & 1{,}479 & 2   & 739.5 \\
-After over 6  & 8  & 172.5   & 30 & 16.5    & 87  & 6 \\
-After over 10 & 11 & 68      & 55 & 10      & 143 & 5 \\
-After over 15 & 11 & 115     & 79 & 8       & 202 & 3 \\
+Over & Six legal deliveries by one bowler. ``12.3 overs'' means 12 overs and 3 balls. \\
+Innings & One team's turn to bat: at most 20 overs, or until 10 wickets fall. \\
+First innings total & Runs scored by the team batting first; the outcome we forecast. \\
+Run rate & Runs scored per over. The current run rate is the score divided by overs bowled. \\
+Strike rate (batter) & Runs scored per 100 balls faced. \\
+Batting average & Runs scored per dismissal. \\
+Economy rate (bowler) & Runs conceded per over bowled. \\
+Wickets in hand & Ten minus the number of wickets fallen. \\
+Powerplay & Overs 1--6, with fielding restrictions. \\
+Death overs & Overs 16--20. \\
+Extras & Runs not credited to a batter: wides, no-balls, byes, leg byes and penalty runs. \\
+Toss decision & Whether the toss winner chose to bat or bowl first. \\
+DLS & Duckworth--Lewis--Stern method for revising targets in shortened matches. \\
 \bottomrule
 \end{tabular}
 \end{table}
-
-\section{Results (Q5.2)}\label{sec:results}
-
-
-Table~\ref{tab:main} and Figure~\ref{fig:rps} summarize the results.
-
-\textbf{The model is most valuable early.} Before ball 1, neither baseline can distinguish between matches, while the model uses the teams, players and venue to reduce RPS from 26.52 to 22.35 runs (skill 0.16). Its advantage over the run-rate projection then shrinks from 4.16 runs to 2.86, 1.08 and 0.09 runs at overs 6, 10 and 15. By over 15, score, wickets and overs remaining explain most of what can be known, and the intervals of the model and the projection overlap almost entirely. Skill relative to climatology rises over the innings (0.16 to 0.68) only because climatology ignores the innings state.
-
-\textbf{Distribution shift is small at the marginal level.} Before ball 1, L1 and L2 are a single bin, i.e.\ the empirical distribution of test totals. It scores 26.24 against climatology's 26.52: knowing the test-period marginal distribution in advance would gain only 0.28 runs.
-
-\textbf{Comparison with the optimal score.} The model beats oracles L1 and L2 at every checkpoint, by 0.28--1.13 runs against L2 after the first ball. This does not contradict their role as optimal scores: they are optimal only for their coarse features, and the model sees much more. L3 conditions more finely and beats the model by 0.70, 1.25 and 1.30 runs at overs 6, 10 and 15. By Lemma~\ref{lem:bias}, much of this gap comes from L3's small bins rather than exploitable signal. We therefore read the gap to L3 as an upper bound on the achievable improvement, and the model's lead over L2 as evidence that it is extracting information beyond the coarse state.
-
-\begin{figure}[!htbp]
-\centering
-\includegraphics[width=0.86\linewidth]{figs/pit_histogram.png}
-\caption{Probability integral transform $F(y)$ of the main model on test. A calibrated forecaster gives a flat histogram (dashed line). The U shape indicates overconfidence.}
-\label{fig:pit}
-\end{figure}
-
-\textbf{Calibration.} Figure~\ref{fig:pit} shows PIT histograms~\citep{dawid1984}. All four are U-shaped. The outer bins, $F(y) < 0.05$ and $F(y) > 0.95$, should each hold 5\% of outcomes; reading from the histograms, together they hold about 22--26\%. The model's nominal 90\% intervals therefore cover only about 74--79\% of test totals. This is not caused by anchoring the CDF at 0 and 300: whether $y$ falls below the 0.05 quantile does not depend on how the tail beyond that quantile is drawn. The quantile models themselves are too narrow on test data. Before ball 1, the right bin is the tallest, meaning high totals are underpredicted, which is consistent with scoring rates in 2024 and later exceeding those in the training period. After over 15, the left bin dominates, meaning late collapses are underpredicted. Because RPS is proper, correcting these errors should also lower the score.
-
-\begin{figure}[!htbp]
-\centering
-\includegraphics[width=\linewidth]{figs/feature_importance.png}
-\caption{Top 15 features by gain for the median ($\tau = 0.5$) quantile model at each checkpoint.}
-\label{fig:importance}
-\end{figure}
-
-\textbf{What the model uses.} Figure~\ref{fig:importance} shows that before ball 1 the strength of the batting order (career strike rate and average of the XI) dominates, followed by the bowling side's economy, Elo ratings, recent form and venue average. As the innings progresses, the current score rises to the top, and by over 15 the most useful signals are the score, the run rate over the last five overs and the quality of the two batters at the crease. This matches the intuition that pre-match context matters early and the innings state matters late.
-
-\subsection{Is the method improvable?}\label{sec:improve}
-Yes, especially early in the innings, where the gap to the fine-grained oracle is largest in relative terms and the model's advantage over simple baselines comes from context features. We expect the following changes to help, in rough order of expected benefit:
-\begin{enumerate}
-\item \textbf{Recalibration.} Widen the predictive distributions using the validation year, for instance with conformalized quantile regression~\citep{romano2019} or a spread factor chosen to minimize validation RPS. The PIT histograms show a clear, fixable miscalibration.
-\item \textbf{Use all the data and adapt to drift.} The model is fit on data up to 2022 only; refitting on training plus validation data, and weighting recent seasons more heavily, should reduce the underprediction of high totals.
-\item \textbf{Richer player histories.} Many associate players have few T20Is. Ratings computed from all men's T20 cricket on Cricsheet, including franchise leagues, would be less noisy.
-\item \textbf{A wider tuning grid and a pooled model.} The selected configuration was the smallest in the grid, so more regularized models may do better. A single model across all balls, with balls remaining as a feature, would share strength across checkpoints.
-\item \textbf{Information outside Cricsheet.} Weather, dew, day/night scheduling and pitch reports are unavailable to us and plausibly matter, especially before ball 1.
-\end{enumerate}
-Improvement is limited late in the innings. After over 15 the model is statistically indistinguishable from the run-rate projection, and even the optimistic L3 oracle scores 6.78 runs: most of the remaining uncertainty is the irreducible randomness of the final five overs.
-
-\section{Conclusion}
-Ball-by-ball Cricsheet data support honest backtesting of in-play forecasts of T20I first-innings totals. The Ranked Probability Score, derived as a sum of threshold Brier scores, is strictly proper and measured in runs. A LightGBM quantile model beats climatology and run-rate baselines, particularly before the innings starts, and beats coarse-feature oracles. The remaining gap to a fine-grained oracle is partly an artifact of in-sample estimation, which we quantified exactly, and the clearest fixable weakness is overconfidence.
-
-\small
-\begin{thebibliography}{99}
-
-\bibitem{brier1950}
-G.~W. Brier.
-\newblock Verification of forecasts expressed in terms of probability.
-\newblock \emph{Monthly Weather Review}, 78(1):1--3, 1950.
-
-\bibitem{cricsheet}
-Cricsheet.
-\newblock Freely-available structured data for cricket.
-\newblock \url{https://cricsheet.org}.
-
-\bibitem{dawid1984}
-A.~P. Dawid.
-\newblock Present position and potential developments: Some personal views. Statistical theory: The prequential approach.
-\newblock \emph{Journal of the Royal Statistical Society, Series A}, 147(2):278--292, 1984.
-
-\bibitem{elo1978}
-A.~E. Elo.
-\newblock \emph{The Rating of Chessplayers, Past and Present}.
-\newblock Arco, 1978.
-
-\bibitem{epstein1969}
-E.~S. Epstein.
-\newblock A scoring system for probability forecasts of ranked categories.
-\newblock \emph{Journal of Applied Meteorology}, 8(6):985--987, 1969.
-
-\bibitem{gneiting2007}
-T.~Gneiting and A.~E. Raftery.
-\newblock Strictly proper scoring rules, prediction, and estimation.
-\newblock \emph{Journal of the American Statistical Association}, 102(477):359--378, 2007.
-
-\bibitem{ke2017}
-G.~Ke, Q.~Meng, T.~Finley, T.~Wang, W.~Chen, W.~Ma, Q.~Ye, and T.-Y. Liu.
-\newblock {LightGBM}: A highly efficient gradient boosting decision tree.
-\newblock In \emph{Advances in Neural Information Processing Systems}, 2017.
-
-\bibitem{koenker1978}
-R.~Koenker and G.~Bassett.
-\newblock Regression quantiles.
-\newblock \emph{Econometrica}, 46(1):33--50, 1978.
-
-\bibitem{matheson1976}
-J.~E. Matheson and R.~L. Winkler.
-\newblock Scoring rules for continuous probability distributions.
-\newblock \emph{Management Science}, 22(10):1087--1096, 1976.
-
-\bibitem{romano2019}
-Y.~Romano, E.~Patterson, and E.~Cand\`es.
-\newblock Conformalized quantile regression.
-\newblock In \emph{Advances in Neural Information Processing Systems}, 2019.
-
-\end{thebibliography}
 
 \end{document}

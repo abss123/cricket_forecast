@@ -1,7 +1,7 @@
 """The four 1st-innings-total forecasters compared in the q5 experiment.
 
 Every forecaster exposes a ``predict(df) -> np.ndarray`` of shape
-(len(df), 301), a CDF over the integer run thresholds 0..300 (see
+(len(df), 401), a CDF over the integer run thresholds 0..400 (see
 ``src/rps.py``), so all four can be scored with the same RPS function.
 
 1. ``fit_climatology``   — empirical distribution of train totals (no

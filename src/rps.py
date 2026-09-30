@@ -1,9 +1,9 @@
-"""Ranked Probability Score over integer run thresholds 0..300.
+"""Ranked Probability Score over integer run thresholds 0..400.
 
-RPS(F, y) = sum_{t=0}^{300} (F(t) - 1{y <= t})^2
+RPS(F, y) = sum_{t=0}^{400} (F(t) - 1{y <= t})^2
 
 ``F`` is a forecast CDF (P(final score <= t)) sampled at every integer t in
-[0, 300]; ``y`` is the realized outcome. A perfect point-mass forecast at the
+[0, 400]; ``y`` is the realized outcome. A perfect point-mass forecast at the
 true value scores 0; every run the point mass is off by adds exactly 1 to the
 score (see the unit tests below) — so RPS is directly interpretable "in
 runs".
@@ -14,7 +14,7 @@ from __future__ import annotations
 import numpy as np
 
 MIN_THRESHOLD = 0
-MAX_THRESHOLD = 300
+MAX_THRESHOLD = 400
 THRESHOLDS = np.arange(MIN_THRESHOLD, MAX_THRESHOLD + 1)
 N_THRESHOLDS = len(THRESHOLDS)
 
@@ -27,7 +27,7 @@ def point_mass_cdf(y: int) -> np.ndarray:
 def rps_score(F: np.ndarray, y) -> np.ndarray:
     """RPS for one or many (forecast, outcome) pairs.
 
-    ``F``: shape (301,) for a single forecast, or (n, 301) for a batch.
+    ``F``: shape (401,) for a single forecast, or (n, 401) for a batch.
     ``y``: a scalar, or shape (n,) matching the batch.
 
     Returns a scalar for a single forecast, or shape (n,) for a batch.
@@ -43,7 +43,7 @@ def rps_score(F: np.ndarray, y) -> np.ndarray:
             y_arr = np.full(F.shape[0], float(y))
 
     if F.shape[1] != N_THRESHOLDS:
-        raise ValueError(f"F must have {N_THRESHOLDS} columns (thresholds 0..300), got {F.shape[1]}")
+        raise ValueError(f"F must have {N_THRESHOLDS} columns (thresholds 0..400), got {F.shape[1]}")
     if F.shape[0] != y_arr.shape[0]:
         raise ValueError(f"F has {F.shape[0]} rows but y has {y_arr.shape[0]} entries")
 
