@@ -368,13 +368,12 @@ def write_summary(
 
     lines.append("\n## Modeling notes\n")
     lines.append(
-        "- RPS is computed exactly as specified, over integer thresholds 0..300; a handful of test-set matches "
-        "(associate-nation T20Is) score above 300, which no in-range forecast can capture perfectly — a known, "
-        "documented edge case, not a bug.\n"
+        "- RPS is computed exactly as specified, over integer thresholds 0..400, above the highest 1st-innings "
+        "total in the data (344), so no outcome falls beyond the grid.\n"
         "- The main model predicts *remaining* runs (target - score) by LightGBM quantile regression at quantiles "
         "0.05 to 0.95 in steps of 0.05 (19 total), then adds the current score; quantiles are sorted per row to "
         "remove crossing before linear interpolation to a CDF, with probability anchored to 0 at run 0 and 1 at "
-        "run 300.\n"
+        "run 400.\n"
         "- Hyperparameters (num_leaves, learning_rate, n_estimators, min_child_samples) are selected per checkpoint "
         "by mean validation RPS from a small grid; the model is fit on train only (not retrained on train+val) — "
         "see `results/model_tuning_log.csv` for every candidate's validation score.\n"
@@ -384,7 +383,7 @@ def write_summary(
         "- `results/pit_histogram.png` shows a U shape at every checkpoint (excess mass near PIT=0 and PIT=1): the "
         "model's quantile forecasts are mildly underdispersed — true outcomes land outside the 0.05-0.95 quantile "
         "range more often than they should. This is a direct consequence of only fitting quantiles down to 0.05 and "
-        "up to 0.95 and then anchoring the CDF's tails at runs 0 and 300 rather than extrapolating them; a wider "
+        "up to 0.95 and then anchoring the CDF's tails at runs 0 and 400 rather than extrapolating them; a wider "
         "quantile grid (e.g. 0.01-0.99) would likely narrow this gap.\n"
     )
 
