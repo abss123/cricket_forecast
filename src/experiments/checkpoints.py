@@ -17,6 +17,7 @@ legal ball), since only 4 points in time are needed.
 
 from __future__ import annotations
 
+import json
 from pathlib import Path
 from typing import Any
 
@@ -25,6 +26,7 @@ import pandas as pd
 from scripts.build_training_table import (
     DATA_DIR,
     DOCS_DIR,
+    SCOPE_FILTERS,
     _flatten,
     _load_match,
     _non_super_over_innings,
@@ -32,6 +34,7 @@ from scripts.build_training_table import (
     build_match_info,
     load_scope,
 )
+from src.eda.unit_summary import apply_filters, build_match_table
 from src.features.history import PointInTimeHistory
 from src.features.state import compute_features, is_dismissal_wicket, is_legal_delivery
 from src.features.venue_country import build_venue_country_mapping
@@ -61,6 +64,24 @@ def _prefix_for_legal_count(deliveries: list[dict[str, Any]], n: int) -> list[di
     return None
 
 
+def first_innings_exclusion(match: dict[str, Any]) -> str | None:
+    """``"reduced_overs"``, ``"curtailed"``, or None if the 1st innings is usable."""
+    info = match["info"]
+    deliveries = _flatten(_non_super_over_innings(match)[0])
+    # Men's T20Is are 20 overs; a few Cricsheet files wrongly record info.overs = 50.
+    is_mens_t20i = (info.get("match_type"), info.get("gender"), info.get("team_type")) == ("T20", "male", "international")
+    scheduled_overs = 20 if is_mens_t20i else info.get("overs", 20)
+    balls_per_over = info.get("balls_per_over", 6)
+    max_legal_balls = int(round(scheduled_overs * balls_per_over))
+    legal_count = sum(1 for d in deliveries if is_legal_delivery(d))
+    wickets_lost = sum(1 for d in deliveries for w in d.get("wickets", []) or [] if is_dismissal_wicket(w))
+    if scheduled_overs != 20:
+        return "reduced_overs"
+    if legal_count < max_legal_balls and wickets_lost < 10:
+        return "curtailed"
+    return None
+
+
 def replay_checkpoints(
     scope: pd.DataFrame,
     country_by_venue_raw: dict[str, str | None],
@@ -86,20 +107,10 @@ def replay_checkpoints(
             first_innings = non_super[0]
             deliveries = _flatten(first_innings)
 
-            scheduled_overs = info.get("overs", 20)
-            balls_per_over = info.get("balls_per_over", 6)
-            max_legal_balls = int(round(scheduled_overs * balls_per_over))
-            legal_count = sum(1 for d in deliveries if is_legal_delivery(d))
-            wickets_lost = sum(
-                1 for d in deliveries for w in d.get("wickets", []) or [] if is_dismissal_wicket(w)
-            )
-            is_reduced_overs = scheduled_overs != 20
-            is_curtailed = legal_count < max_legal_balls and wickets_lost < 10
-
             venue_country = country_by_venue_raw.get(info.get("venue"))
             match_info = build_match_info(match, meta_row, venue_country)
 
-            if not is_reduced_overs and not is_curtailed:
+            if first_innings_exclusion(match) is None:
                 for checkpoint_name, n_balls in CHECKPOINT_BALLS.items():
                     prefix = _prefix_for_legal_count(deliveries, n_balls)
                     if prefix is None:
@@ -150,3 +161,97 @@ def build_checkpoint_table(
     out_path.parent.mkdir(parents=True, exist_ok=True)
     df.to_parquet(out_path, index=False)
     return df
+
+
+# --------------------------------------------------------------------------
+# Frozen train/val/test checkpoint (data/checkpoints/first_innings/)
+# --------------------------------------------------------------------------
+
+SPLIT_DIR = PROJECT_ROOT / "data" / "checkpoints" / "first_innings"
+
+# Inclusive match-date ranges; None = open-ended.
+SPLIT_RANGES: dict[str, tuple[str | None, str | None]] = {
+    "train": (None, "2022-12-31"),
+    "val": ("2023-01-01", "2023-12-31"),
+    "test": ("2024-01-01", None),
+}
+
+
+def in_split_range(dates: pd.Series, split: str) -> pd.Series:
+    start, end = SPLIT_RANGES[split]
+    mask = pd.Series(True, index=dates.index)
+    if start is not None:
+        mask &= dates >= pd.Timestamp(start)
+    if end is not None:
+        mask &= dates <= pd.Timestamp(end)
+    return mask
+
+
+def _cricsheet_data_date(data_dir: Path) -> str:
+    """Latest match date listed in the Cricsheet README shipped with the data."""
+    readme = (data_dir / "README.txt").read_text(encoding="utf-8")
+    return max(line[:10] for line in readme.splitlines() if line[:4].isdigit() and line[4:5] == "-")
+
+
+def write_split_checkpoint(data_dir: Path = DATA_DIR, out_dir: Path = SPLIT_DIR) -> dict[str, pd.DataFrame]:
+    """Build the checkpoint table, split it by match date, and write parquet + manifest.json."""
+    in_scope = apply_filters(build_match_table(data_dir), SCOPE_FILTERS)
+    scope = load_scope(data_dir=data_dir)
+
+    # Drop reasons, first match wins. No-results stay in the replay (so point-in-time
+    # history is unchanged) and only lose their rows afterwards.
+    dropped = {"no_first_innings": len(in_scope) - len(scope), "no_result": 0, "reduced_overs": 0, "curtailed": 0}
+    no_result_ids = set()
+    for _, meta_row in scope.iterrows():
+        exclusion = first_innings_exclusion(_load_match(data_dir, meta_row["match_id"]))
+        if meta_row["outcome_type"] == "no_result":
+            no_result_ids.add(meta_row["match_id"])
+            dropped["no_result"] += 1
+        elif exclusion is not None:
+            dropped[exclusion] += 1
+
+    venue_country_table = build_venue_country_mapping(scope)
+    country_by_venue_raw = dict(zip(venue_country_table["venue_raw"], venue_country_table["country"]))
+    df = replay_checkpoints(scope, country_by_venue_raw, data_dir=data_dir)
+    feature_columns = [c for c in df.columns if c not in {"match_id", "date", "checkpoint", "target_final_score"}]
+
+    df = df[~df["match_id"].isin(no_result_ids)].rename(columns={"target_final_score": "final_total"})
+    df["remaining_runs"] = df["final_total"] - df["score"]
+    lead = ["match_id", "date", "checkpoint", "batting_team", "bowling_team", "venue", "score", "wickets"]
+    df = df[lead + [c for c in df.columns if c not in lead]].reset_index(drop=True)
+
+    print(f"male T20I matches: {len(in_scope):,}; kept {df['match_id'].nunique():,}; dropped:")
+    for reason, n in dropped.items():
+        print(f"  {reason:<17} {n:>5}")
+
+    out_dir.mkdir(parents=True, exist_ok=True)
+    splits = {name: df[in_split_range(df["date"], name)].reset_index(drop=True) for name in SPLIT_RANGES}
+    manifest: dict[str, Any] = {
+        "cricsheet_data_date": _cricsheet_data_date(data_dir),
+        "splits": {},
+        "feature_columns": feature_columns,
+    }
+    for name, split_df in splits.items():
+        split_df.to_parquet(out_dir / f"{name}.parquet", index=False)
+        start, end = SPLIT_RANGES[name]
+        manifest["splits"][name] = {
+            "date_range": {"start": start, "end": end},
+            "observed_dates": {"min": str(split_df["date"].min().date()), "max": str(split_df["date"].max().date())},
+            "n_matches": int(split_df["match_id"].nunique()),
+            "rows_per_checkpoint": {cp: int((split_df["checkpoint"] == cp).sum()) for cp in CHECKPOINT_ORDER},
+        }
+    (out_dir / "manifest.json").write_text(json.dumps(manifest, indent=2) + "\n")
+    return splits
+
+
+def load_splits(
+    checkpoint: str | None = None, split_dir: Path = SPLIT_DIR
+) -> tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame]:
+    """(train, val, test) from ``data/checkpoints/first_innings``, optionally one checkpoint only."""
+    out = []
+    for name in SPLIT_RANGES:
+        df = pd.read_parquet(split_dir / f"{name}.parquet")
+        if checkpoint is not None:
+            df = df[df["checkpoint"] == checkpoint].reset_index(drop=True)
+        out.append(df)
+    return tuple(out)
