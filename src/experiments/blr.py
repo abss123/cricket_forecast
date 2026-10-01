@@ -4,11 +4,13 @@
 
 Per checkpoint: conjugate normal--inverse-gamma regression of the remaining
 runs on the report's Table 2 features, fit on train (<= 2022) with the prior
-scale tau^2 picked by validation (2023) RPS, scored on test (2024+). Bucket
+scale tau^2 picked by validation (2023) RPS, scored on test (2024+); splits
+come from the frozen checkpoint in data/checkpoints/first_innings/. Bucket
 probabilities come from the closed-form Student-t posterior predictive;
 ``sample_buckets`` is the Monte Carlo sampler of report Section 3, which
-tests/test_blr.py checks against it. Writes results/blr_summary.md and
-report/figs/blr_demo.png.
+tests/test_blr.py checks against it. The ECDF baseline is the empirical
+distribution of training totals, bucketed like the model's forecasts.
+Writes results/blr_summary.md and report/figs/blr_demo.png.
 """
 
 from __future__ import annotations
@@ -26,7 +28,7 @@ import numpy as np
 import pandas as pd
 from scipy import special, stats
 
-from src.experiments.checkpoints import CHECKPOINT_ORDER, build_checkpoint_table
+from src.experiments.checkpoints import CHECKPOINT_ORDER, load_splits
 from src.rps import rps_score
 
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
@@ -124,23 +126,24 @@ def scores(p, yhat, var, y):
     })
 
 
+def ecdf_buckets(y):
+    """ECDF baseline: bucket probabilities of the empirical distribution of totals y, bucketed like the model."""
+    return np.bincount(bucket_of(y), minlength=N_BUCKETS) / len(y)
+
+
 def marginal_optimum(y):
-    """Optimal expected scores without features: each score's entropy of the empirical distribution of y."""
-    G = (y[:, None] <= np.arange(401)).mean(0)
-    g = np.bincount(bucket_of(y), minlength=N_BUCKETS) / len(y)
+    """Optimal expected scores without features: each score's entropy of the bucketed ECDF of y."""
+    g = ecdf_buckets(y)
+    G = bucket_cdf(g[None])[0]
     return {"rps": (G * (1 - G)).sum(), "log": special.entr(g).sum(), "mse": y.var()}
 
 
 def run() -> None:
-    df = build_checkpoint_table()
-    year = pd.to_datetime(df["date"]).dt.year
-    df["split"] = np.select([year <= 2022, year == 2023], ["train", "val"], "test")
     rows, demo = [], []
 
     for cp in CHECKPOINT_ORDER:
-        d = df[df["checkpoint"] == cp]
-        train, val, test = (d[d["split"] == s] for s in ("train", "val", "test"))
-        y_train, y_val, y_test = (f["target_final_score"].to_numpy(float) for f in (train, val, test))
+        train, val, test = load_splits(cp)
+        y_train, y_val, y_test = (f["final_total"].to_numpy(float) for f in (train, val, test))
         design = make_design(train)
         X = design(train)
         r = y_train - train["score"].to_numpy(float)
@@ -152,11 +155,13 @@ def run() -> None:
         post = posterior(X, r, tau2)
         p, yhat, var = predict(post, test)
         per_row = scores(p, yhat, var, y_test)
-        clim = np.bincount(bucket_of(y_train), minlength=N_BUCKETS) / len(y_train)
-        clim_rps = rps_score(bucket_cdf(np.tile(clim, (len(test), 1))), y_test).mean()
+        ecdf = ecdf_buckets(y_train)
+        ecdf_rps = rps_score(bucket_cdf(np.tile(ecdf, (len(test), 1))), y_test).mean()
         rows.append({
-            "checkpoint": LABEL[cp], "tau2": tau2, "n_features": X.shape[1] - 1, "nu": 2 * post[2],
-            "clim_rps": clim_rps, "skill": 1 - per_row["rps"].mean() / clim_rps,
+            "checkpoint": LABEL[cp], "n_train": len(train), "n_val": len(val), "n_test": len(test),
+            "tau2": tau2, "n_features": X.shape[1] - 1, "nu": 2 * post[2],
+            "ecdf_rps": ecdf_rps, "skill": 1 - per_row["rps"].mean() / ecdf_rps,
+            "ecdf_n_zero_prob": (ecdf[bucket_of(y_test)] == 0).sum(),
             "rps_se": per_row["rps"].std() / np.sqrt(len(test)), **per_row.mean(), "log_max": per_row["log"].max(),
             "n_above_train_max": (y_test > y_train.max()).sum(),
             **{f"marg_{k}": v for k, v in marginal_optimum(y_test).items()},
@@ -164,12 +169,17 @@ def run() -> None:
         k = np.flatnonzero((test["match_id"] == DEMO_MATCH).to_numpy())[0]
         demo.append((cp, p[k], yhat[k], bucket_of(round(yhat[k])), int(test["score"].iloc[k]), int(test["wickets"].iloc[k]), y_test[k]))
 
-    table = pd.DataFrame(rows).set_index("checkpoint")
+    table = pd.DataFrame(rows).set_index("checkpoint").T
+    counts = ["n_train", "n_val", "n_test", "n_features", "ecdf_n_zero_prob", "n_above_train_max"]
+    table = table.apply(lambda row: row.map((lambda v: f"{int(v):,}") if row.name in counts else (lambda v: f"{v:.4f}")), axis=1)
     out = PROJECT_ROOT / "results" / "blr_summary.md"
     out.write_text(
         "# Bayesian linear regression: test results\n\nReproduce with `python -m src.experiments.blr`. "
-        "Train <= 2022, validation 2023 (picks tau2), test >= 2024.\n\n"
-        + table.T.to_markdown(floatfmt=".4f") + "\n\n## Demo: " + f"match {DEMO_MATCH}\n\n"
+        "Splits from data/checkpoints/first_innings/: train <= 2022, validation 2023 (picks tau2), test >= 2024.\n\n"
+        "`ecdf_*`: the ECDF baseline, i.e. the empirical distribution of training totals bucketed like the model's forecasts; "
+        "`skill` is relative to it, and `ecdf_n_zero_prob` counts test innings whose bucket it gives probability 0. "
+        "`*_opt`: model-implied optimum. `marg_*`: no-features optimum, the entropy of the bucketed ECDF of test totals.\n\n"
+        + table.to_markdown(colalign=("left",) + ("right",) * table.shape[1]) + "\n\n## Demo: " + f"match {DEMO_MATCH}\n\n"
         + pd.DataFrame(
             [(LABEL[c], f"{s}/{w}", yh, f"{10 * j}-{10 * j + 9}", pr[j], y, pr[bucket_of(y)]) for c, pr, yh, j, s, w, y in demo],
             columns=["checkpoint", "score", "best estimate", "bucket", "P(bucket)", "actual", "P(actual bucket)"],

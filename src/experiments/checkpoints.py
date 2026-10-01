@@ -33,6 +33,7 @@ from scripts.build_training_table import (
     _player_match_lines,
     build_match_info,
     load_scope,
+    scheduled_overs,
 )
 from src.eda.unit_summary import apply_filters, build_match_table
 from src.features.history import PointInTimeHistory
@@ -68,14 +69,12 @@ def first_innings_exclusion(match: dict[str, Any]) -> str | None:
     """``"reduced_overs"``, ``"curtailed"``, or None if the 1st innings is usable."""
     info = match["info"]
     deliveries = _flatten(_non_super_over_innings(match)[0])
-    # Men's T20Is are 20 overs; a few Cricsheet files wrongly record info.overs = 50.
-    is_mens_t20i = (info.get("match_type"), info.get("gender"), info.get("team_type")) == ("T20", "male", "international")
-    scheduled_overs = 20 if is_mens_t20i else info.get("overs", 20)
+    n_overs = scheduled_overs(info)
     balls_per_over = info.get("balls_per_over", 6)
-    max_legal_balls = int(round(scheduled_overs * balls_per_over))
+    max_legal_balls = int(round(n_overs * balls_per_over))
     legal_count = sum(1 for d in deliveries if is_legal_delivery(d))
     wickets_lost = sum(1 for d in deliveries for w in d.get("wickets", []) or [] if is_dismissal_wicket(w))
-    if scheduled_overs != 20:
+    if n_overs != 20:
         return "reduced_overs"
     if legal_count < max_legal_balls and wickets_lost < 10:
         return "curtailed"

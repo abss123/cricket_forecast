@@ -78,6 +78,16 @@ def _trailing_window(deliveries: list[dict[str, Any]], n_overs: int, balls_per_o
     return deliveries[start:]
 
 
+def bowler_overs_remaining(deliveries_so_far: list[dict[str, Any]], match_info: dict[str, Any]) -> dict[str, float]:
+    """Overs each bowling-side player may still bowl (scheduled overs / 5, i.e. 4 in a 20-over innings)."""
+    max_overs_per_bowler = match_info.get("scheduled_overs", 20) / MAX_OVERS_PER_BOWLER_DIVISOR
+    balls_per_over = match_info.get("balls_per_over", 6)
+    return {
+        name: max(max_overs_per_bowler - sum(1 for d in deliveries_so_far if is_legal_delivery(d) and d.get("bowler") == name) / balls_per_over, 0.0)
+        for name in match_info.get("bowling_players", [])
+    }
+
+
 def _ball_state_features(deliveries_so_far: list[dict[str, Any]], match_info: dict[str, Any]) -> dict[str, Any]:
     balls_per_over = match_info.get("balls_per_over", 6)
     scheduled_overs = match_info.get("scheduled_overs", 20)
@@ -198,13 +208,8 @@ def _player_features(
     features["remaining_batting_order_sr"] = sum(remaining_srs) / len(remaining_srs) if remaining_srs else None
     features["remaining_batting_order_avg"] = sum(remaining_avgs) / len(remaining_avgs) if remaining_avgs else None
 
-    scheduled_overs = match_info.get("scheduled_overs", 20)
-    max_overs_per_bowler = scheduled_overs / MAX_OVERS_PER_BOWLER_DIVISOR
-    balls_per_over = match_info.get("balls_per_over", 6)
     weighted_economy_sum, weight_sum, n_bowlers_remaining = 0.0, 0.0, 0
-    for name in match_info.get("bowling_players", []):
-        overs_bowled = sum(1 for d in deliveries_so_far if is_legal_delivery(d) and d.get("bowler") == name) / balls_per_over
-        overs_remaining = max(max_overs_per_bowler - overs_bowled, 0.0)
+    for name, overs_remaining in bowler_overs_remaining(deliveries_so_far, match_info).items():
         if overs_remaining <= 0:
             continue
         n_bowlers_remaining += 1

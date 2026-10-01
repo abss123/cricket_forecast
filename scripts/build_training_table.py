@@ -110,6 +110,13 @@ def _player_match_lines(
     return batting_lines, bowling_lines
 
 
+def scheduled_overs(info: dict[str, Any]) -> int:
+    """Overs per innings. Men's T20Is are 20 overs; a few Cricsheet files wrongly record info.overs = 50."""
+    if (info.get("match_type"), info.get("gender"), info.get("team_type")) == ("T20", "male", "international"):
+        return 20
+    return info.get("overs", 20)
+
+
 def build_match_info(
     match: dict[str, Any],
     meta_row: pd.Series,
@@ -130,7 +137,7 @@ def build_match_info(
         "bowling_team": bowling_team,
         "toss_winner": info.get("toss", {}).get("winner"),
         "toss_decision": info.get("toss", {}).get("decision"),
-        "scheduled_overs": info.get("overs", 20),
+        "scheduled_overs": scheduled_overs(info),
         "balls_per_over": info.get("balls_per_over", 6),
         "batting_players": players.get(batting_team, []) or [],
         "bowling_players": players.get(bowling_team, []) or [],
@@ -180,14 +187,14 @@ def replay_matches(
             first_innings = non_super[0]
             deliveries = _flatten(first_innings)
 
-            scheduled_overs = info.get("overs", 20)
+            n_overs = scheduled_overs(info)
             balls_per_over = info.get("balls_per_over", 6)
-            max_legal_balls = int(round(scheduled_overs * balls_per_over))
+            max_legal_balls = int(round(n_overs * balls_per_over))
             legal_count = sum(1 for d in deliveries if is_legal_delivery(d))
             wickets_lost = sum(
                 1 for d in deliveries for w in d.get("wickets", []) or [] if is_dismissal_wicket(w)
             )
-            is_reduced_overs = scheduled_overs != 20
+            is_reduced_overs = n_overs != 20
             is_curtailed = legal_count < max_legal_balls and wickets_lost < 10
             match_flags.append(
                 {
