@@ -198,70 +198,25 @@ The second sum does not depend on $F$, and the first is nonnegative and equals z
 A forecaster who believes $G$ therefore has no incentive to report anything else, which is the property we need to compare forecasters honestly. We prefer RPS to the logarithmic score for three reasons. It rewards being close: forecasting 170 when the outcome is 172 scores far better than forecasting 220, whereas the log score depends only on the probability assigned to exactly 172. It is bounded, so one surprising total does not dominate the average. And it is measured in runs, which is easy to interpret. We report the mean RPS over test innings and the skill score $1 - \overline{\RPS} / \overline{\RPS}_{\text{ECDF}}$ relative to an ECDF baseline, which forecasts every innings with the empirical cumulative distribution function (ECDF) of first innings totals in the training data, bucketed like the model's forecasts, and ignores the teams, venue and state of the innings. We set $T = 400$, above the highest first innings total in our data, so no outcome falls beyond the grid. A total above 400 would incur a small penalty at $t = 400$ under every forecast; this would be a property of the truncated grid, not of the rule, and would affect all forecasters equally.
 
 \subsection{Log Score and Squared Error}\label{sec:otherscores}
-We also report two familiar scores, one for the bucket probabilities and one for a single best estimate.
-
-\paragraph{Log score and cross-entropy.} The logarithmic score \citep{gneiting2007} of a bucketed forecast is the negative log probability of the bucket that occurs,
+We also report two familiar scores. The \emph{log score} \citep{gneiting2007} of a bucketed forecast is the negative log probability of the bucket that occurs,
 \begin{equation}\label{eq:log}
 \mathrm{LS}(p, y) = -\log p_{j(y)}, \qquad j(y) = \min\big(\lfloor y/10 \rfloor, 40\big),
 \end{equation}
-measured in nats. Averaged over innings, it is the negative log-likelihood of the observed buckets under the forecasts. If the true bucket probabilities are $g = (g_0, \dots, g_{40})$, the expected log score is the \emph{cross-entropy} of $p$ relative to $g$, which splits into the Shannon entropy of $g$ and the Kullback--Leibler (KL) divergence from $g$ to $p$:
-\begin{equation}\label{eq:crossent}
-\E_{Y \sim G}\,\mathrm{LS}(p, Y) = -\sum_{j} g_j \log p_j = \underbrace{-\sum_{j} g_j \log g_j}_{H(g)} \;+\; \underbrace{\sum_{j} g_j \log \frac{g_j}{p_j}}_{\mathrm{KL}(g \,\|\, p)}.
-\end{equation}
-The entropy $H(g)$ does not depend on the forecast, and $\mathrm{KL}(g \,\|\, p) \ge 0$ with equality if and only if $p = g$ (Gibbs' inequality), so the log score is strictly proper on buckets. Unlike RPS, it is unbounded: a forecast that gives the realized bucket a probability near zero receives a very large penalty, and a probability of exactly zero gives an infinite score. A forecaster scored this way must give every bucket that can occur positive probability.
-
-\paragraph{Squared error for the best estimate.} The regression part of the forecast is a single best estimate $\hat y$ of the total. We score it by the squared error $(y - \hat y)^2$ and report its mean over test innings (MSE). If $Y \sim G$ has mean $\mu_G$ and variance $\mathrm{Var}_G(Y)$, then
-\begin{equation}\label{eq:se}
-\E_{Y \sim G}\,(Y - \hat y)^2 = (\hat y - \mu_G)^2 + \mathrm{Var}_G(Y),
-\end{equation}
-so the expected squared error is minimized by the mean $\hat y = \mu_G$. It is a proper score for the mean, but it ignores the rest of the forecast distribution. By contrast, RPS scores a point forecast by its absolute error, which the median minimizes.
+measured in nats. Like RPS it is strictly proper, but unlike RPS it is unbounded: a forecast that gives the realized bucket probability zero receives an infinite score. For the single best estimate $\hat y$ of the total, we report the mean squared error (MSE) of $(y - \hat y)^2$ over test innings, which is minimized in expectation by the mean of the true distribution. Appendix~\ref{app:proofs} proves both properties.
 
 \section{Trial Prediction}\label{sec:trial}
 \subsection{Optimal Score}\label{sec:optimal}
-Eqs.~\eqref{eq:decomp}, \eqref{eq:crossent} and \eqref{eq:se} share one structure \citep{gneiting2007}. The expected score of a forecast is an \emph{entropy} term, which depends only on the true distribution $G$, plus a \emph{divergence} term, which is nonnegative and zero only for the ideal forecast:
-\begin{equation}\label{eq:entdiv}
-\E_{Y \sim G}\, S(F, Y) = H_S(G) + d_S(F, G).
-\end{equation}
-Table~\ref{tab:entropy} lists the pairs for our three scores. The entropy $H_S(G) = \E_{Y \sim G}\, S(G, Y)$ is the expected score of a forecaster who knows $G$ exactly, so it is the optimal score. It is not zero. For RPS, each threshold $t$ is a Bernoulli event $\{Y \le t\}$ that contributes its variance $G(t)(1 - G(t))$ even to the perfect forecast, and this term is positive at every $t$ from the lowest possible total up to, but not including, the highest. Likewise $H(g) > 0$ unless one bucket is certain, and $\mathrm{Var}_G(Y) > 0$ unless the total is. Only a forecaster facing a certain outcome can have an expected score of zero.
+For each of our scores, the expected score of a forecast splits into an \emph{optimum}, which depends only on the true distribution $G$, plus a nonnegative \emph{excess}, which is zero only when the forecast equals $G$ \citep{gneiting2007}. For RPS this is Eq.~\eqref{eq:decomp}, whose optimum is $\sum_t G(t)\big(1 - G(t)\big)$; for the log score and MSE the optimum is the entropy of the bucket probabilities and the variance of the total (Appendix~\ref{app:proofs}). The optimum is the score that a forecaster who knew $G$ exactly would expect, and it is not zero: even a perfect forecaster cannot know which total will occur.
 
-\begin{table}[h]
-\centering
-\caption{Entropy (optimal expected score) and divergence (excess over the optimum) of each score, for a forecast $F$ with bucket probabilities $p$ and best estimate $\hat y$, when $Y \sim G$ with bucket probabilities $g$.}
-\label{tab:entropy}
-\begin{tabular}{llll}
-\toprule
-Score & $S(F, y)$ & Entropy $H_S(G)$ (optimum) & Divergence $d_S(F, G)$ \\
-\midrule
-RPS & $\sum_t \big(F(t) - \1\{y \le t\}\big)^2$ & $\sum_t G(t)\big(1 - G(t)\big)$ & $\sum_t \big(F(t) - G(t)\big)^2$ \\
-Log score & $-\log p_{j(y)}$ & $H(g) = -\sum_j g_j \log g_j$ & $\mathrm{KL}(g \,\|\, p)$ \\
-Squared error & $(y - \hat y)^2$ & $\mathrm{Var}_G(Y)$ & $(\hat y - \mu_G)^2$ \\
-\bottomrule
-\end{tabular}
-\end{table}
-
-\paragraph{Conditioning on features.} At a checkpoint the forecaster knows the features $x$, so the relevant truth is the conditional distribution $G(\cdot \mid x)$, and the best achievable average score is the Bayes risk $R_S^* = \E_X\, H_S\big(G(\cdot \mid X)\big)$. More information cannot increase it. Each entropy is a minimum of functions that are linear in $G$, $H_S(G) = \min_F \E_{Y \sim G}\, S(F, Y)$, so it is concave. Since $G = \E_X\, G(\cdot \mid X)$, Jensen's inequality gives
-\begin{equation}\label{eq:jensen}
-R_S^* = \E_X\, H_S\big(G(\cdot \mid X)\big) \;\le\; H_S\big(\E_X\, G(\cdot \mid X)\big) = H_S(G).
-\end{equation}
-The gap $H_S(G) - R_S^*$ is the value of the features. $R_S^*$ itself is the randomness in the rest of the innings that no forecaster using these features can remove.
-
-\paragraph{Estimating the optimum.} $G(\cdot \mid x)$ is unknown, so $R_S^*$ cannot be computed exactly. We report two estimates in Section~\ref{sec:demo}.
+At a checkpoint the relevant truth is the distribution of the total given the features, $G(\cdot \mid x)$, and conditioning on more information can only lower the optimum (Appendix~\ref{app:proofs}). Since $G(\cdot \mid x)$ is unknown, we report two estimates of the optimum in Section~\ref{sec:demo}:
 \begin{enumerate}
-\item \emph{No features.} Plugging the empirical distribution of the test totals, bucketed like the model's forecasts, into $H_S$ gives the optimal score of a forecaster that gives every innings the same distribution, even one that knew the test-period distribution in advance. By Eq.~\eqref{eq:jensen}, it is an upper bound on $R_S^*$, up to sampling error.
-\item \emph{Model-implied.} If the Bayesian model's forecast $\hat F_i$ for test innings $i$ were the truth, its expected score would be $H_S(\hat F_i)$. The average $\frac1n \sum_i H_S(\hat F_i)$ over test innings is therefore the model's own estimate of $R_S^*$. For RPS we use the bucketed CDF of Eq.~\eqref{eq:bucketcdf}, and for squared error we use the predictive variance of $s + \tilde r$, before rounding and truncation.
+\item \emph{No features:} the optimum of the empirical distribution of test totals, bucketed like the model's forecasts. This is the best score of a forecaster that gives every innings the same distribution, even one that knew the test-period distribution in advance, so it is an upper bound on the optimum with features.
+\item \emph{Model-implied:} the optimum of each BLR forecast, computed as if that forecast were the true distribution, averaged over test innings.
 \end{enumerate}
-If the model is correct, its realized mean score should match estimate 2 up to sampling error. A realized score above it means that the forecasts are too narrow or biased, and a realized score below it means that they are too wide.
+If the model is correct, its realized mean score should match estimate 2 up to sampling error. A realized score above it means that the forecasts are too narrow or biased, and a score below it means that they are too wide.
 
 \subsection{Demo}\label{sec:demo}
-\paragraph{Setup.} We fit the model of Section~\ref{sec:model} separately at each checkpoint on the training innings, with the features of Table~\ref{tab:features}: \texttt{score}, \texttt{wickets}, \texttt{run\_rate\_last\_5} and the current partnership; the runs, strike rate and career T20I average and strike rate of both batters at the crease; the batting and bowling resources; both Elo ratings, their difference and both match counts; both teams' recent form; the venue average and number of prior matches; and one-hot indicators for the two team tiers and for home, away or neutral. Features that are constant or missing at a checkpoint drop out: balls remaining at every checkpoint, and the in-play features before ball 1. This leaves 19 features before ball 1 and 31 afterward. Other missing values, mostly career statistics of batters with no previous T20I (6--9\% of batters at the crease across all splits), are set to the training mean. The Elo difference is collinear with the two ratings, and the one-hot indicators with the intercept, but the prior keeps the posterior proper. We set $a_0 = b_0 = 0.01$ and choose $\tau^2 \in \{10^{-3}, 10^{-2}, \dots, 10\}$ by mean validation RPS. The value $\tau^2 = 0.1$ is chosen at every checkpoint. The experiment is reproduced by \texttt{python -m src.experiments.blr}.
-
-\paragraph{Exact bucket probabilities.} Rather than drawing samples, we compute the bucket probabilities exactly: averaging over the posterior gives the predictive distribution of the remaining runs $\tilde r$ in closed form, so its CDF can be evaluated directly. The rounding and truncation in step 3 of Section~\ref{sec:model} are a fixed function of $\tilde r$, and since $t - s \ge 0$, $\max\big(0, \operatorname{round}(\tilde r)\big) \le t - s$ if and only if $\tilde r < t - s + \tfrac12$. So for integer $t \ge s$,
-\begin{equation}\label{eq:tcdf}
-P(\tilde Y \le t) = P\big(\tilde r < t - s + \tfrac12\big),
-\end{equation}
-and $P(\tilde Y \le t) = 0$ for $t < s$. The bucket probabilities are $\hat p_j = P(\tilde Y \le 10j + 9) - P(\tilde Y \le 10j - 1)$ for $j = 0, \dots, 39$, and $\hat p_{40} = 1 - P(\tilde Y \le 399)$. This is the limit of the sampler as $S \to \infty$. In a unit test on synthetic data, the two agree to within 0.005 in every bucket with $S = 400{,}000$ draws, including a case where the truncation at $s$ matters. Every bucket the total can still reach receives positive probability, as the log score requires.
-
-\paragraph{Best estimate.} The best estimate is $\hat y = s + \tilde x^\top m_n$, the predictive mean of $s + \tilde r$ before rounding and truncation, which (up to that approximation) minimizes the expected squared error by Eq.~\eqref{eq:se}. We report it together with its bucket $B_{j(\operatorname{round}(\hat y))}$ and that bucket's probability. Because the predictive distribution is symmetric and unimodal, the bucket containing the rounded mean is also the most probable bucket, apart from the truncation at $s$.
+\paragraph{Setup.} We fit the model of Section~\ref{sec:model} separately at each checkpoint on the training innings, using the features of Table~\ref{tab:features}. Features that are constant or unavailable at a checkpoint (balls remaining throughout, and the in-play features before ball 1) drop out, leaving 19 features before ball 1 and 31 afterward. Missing career statistics, mostly for batters with no previous T20I, are set to the training mean. We set $a_0 = b_0 = 0.01$ and choose $\tau^2 \in \{10^{-3}, 10^{-2}, \dots, 10\}$ by mean validation RPS; $\tau^2 = 0.1$ is chosen at every checkpoint. We compute the bucket probabilities exactly, as the limit of the sampler of Section~\ref{sec:model} as $S \to \infty$, and a unit test confirms that the two agree to within 0.005 in every bucket. The best estimate $\hat y = s + \tilde x^\top m_n$ is the predictive mean of the total.
 
 \paragraph{Worked example.} Figure~\ref{fig:demo} shows the forecasts for the final of the 2024 ICC Men's T20 World Cup between India and South Africa at Kensington Oval, Bridgetown, a match in the test period. India batted first and made 176/7. Before ball 1 the best estimate is 177, in the 170--179 bucket, which the model gives probability 0.11. India lost three wickets in the powerplay and were 45/3 after six overs. The estimate fell to 164 (bucket 160--169, probability 0.15), and the bucket of the actual total kept probability 0.14. After ten overs (75/3) the estimate was 169, and after fifteen overs (118/4) it was 172, back in the 170--179 bucket, now with probability 0.28. The distribution narrows as the innings progresses and fewer runs remain uncertain.
 
@@ -276,7 +231,7 @@ and $P(\tilde Y \le t) = 0$ for $t < s$. The bucket probabilities are $\hat p_j 
 
 \begin{table}[t]
 \centering
-\caption{Test performance of the Bayesian linear regression (BLR) and estimates of the optimal score (Section~\ref{sec:optimal}). Lower is better for RPS, log score and MSE. RPS is shown $\pm$ one standard error. ``No features'' is the entropy of the empirical distribution of test totals, bucketed like the BLR forecasts. ``Model-implied'' is the expected score if the BLR forecasts were the truth. The ECDF baseline is also bucketed like the BLR forecasts.}
+\caption{Test performance of the Bayesian linear regression (BLR) and estimates of the optimal score (Section~\ref{sec:optimal}). Lower is better for RPS, log score and MSE. RPS is shown $\pm$ one standard error. ``No features'' is the optimum of the empirical distribution of test totals, bucketed like the BLR forecasts. ``Model-implied'' is the expected score if the BLR forecasts were the truth. The ECDF baseline is also bucketed like the BLR forecasts.}
 \label{tab:demo}
 \small
 \begin{tabular}{lcccc}
@@ -309,9 +264,9 @@ and $P(\tilde Y \le t) = 0$ for $t < s$. The bucket probabilities are $\hat p_j 
 \end{tabular}
 \end{table}
 
-\paragraph{Distance to the optimum.} Before ball 1, the realized scores exceed the model-implied optimum for all three scores (RPS 21.2 against 20.2, MSE 1{,}447 against 1{,}260), and the model underpredicts test totals by 4.6 runs on average. The average test total is not higher than in training, because the test period has more associate matches, but teams of the same tier scored more: full members averaged 175 runs against 162 in training, and associates 144 against 141. The pre-match features cannot see this shift. About 1 run of the gap comes from the prior shrinking the intercept toward zero, since $V_0 = \tau^2 I$ also covers the intercept. Once the current score is known, it absorbs most of this shift. From over 6 onward, the realized scores are within 7\% of the model-implied values, and after overs 10 and 15 they are slightly below them. The forecasts are then, if anything, slightly too wide, and their central 90\% intervals cover 91--92\% of test totals.
+\paragraph{Distance to the optimum.} Before ball 1, the model scores worse than its own optimum (RPS 21.2 against 20.2, MSE 1{,}447 against 1{,}260) and underpredicts test totals by 4.6 runs on average. Within each tier, teams scored more in the test period than in training: full members averaged 175 runs against 162, and associates 144 against 141. The pre-match features cannot see this shift, and the prior's shrinkage of the intercept toward zero adds about 1 run to the gap. Once the current score is known, it absorbs most of the shift. From over 6 onward, the realized scores are within 7\% of the model-implied optimum, and after overs 10 and 15 they are slightly below it, so the forecasts are, if anything, slightly too wide. Their central 90\% intervals cover 91--92\% of test totals.
 
-\paragraph{Best estimate and log score.} The bucket of the best estimate contains the actual total in 11\% of test innings before ball 1 and 27\% after over 15, matching the model's own expectation. A 10-run bucket is narrow compared with the forecast error (a root mean squared error of 38 runs before ball 1), so the bucket probabilities carry more information than the single best estimate. The log score shows why a bounded score is safer. Fifteen test totals exceed the highest training total of 263. The ECDF baseline gives their buckets probability zero, as it does the buckets of a few unusually low totals: 19 test innings in all before over 15, and 27 after it. Its log score is therefore infinite, and Table~\ref{tab:demo} reports none. The BLR forecasts give every reachable bucket positive probability, but a single surprising innings still costs up to 12.6 nats, about five times the average.
+\paragraph{Best estimate and log score.} The bucket of the best estimate contains the actual total in 11\% of test innings before ball 1 and 27\% after over 15, as the model itself expects. A 10-run bucket is narrow next to the typical error (a root mean squared error of 38 runs before ball 1), so the full bucket probabilities carry more information than the single best estimate. The log score shows why we prefer a bounded score. The ECDF baseline gives probability zero to the buckets of 19 test innings (27 after over 15), mostly totals above the highest training total of 263, so its log score is infinite and Table~\ref{tab:demo} reports none. The BLR gives every reachable bucket positive probability, but a single surprising innings still costs up to 12.6 nats, about five times the average.
 
 % \begin{figure}
 % 	\centering
@@ -367,5 +322,42 @@ DLS & Duckworth--Lewis--Stern method for revising targets in shortened matches. 
 \bottomrule
 \end{tabular}
 \end{table}
+
+\section{Propriety of the log score and squared error}\label{app:proofs}
+
+\paragraph{Log score.} If the true bucket probabilities are $g = (g_0, \dots, g_{40})$, the expected log score of Eq.~\eqref{eq:log} is the \emph{cross-entropy} of $p$ relative to $g$, which splits into the Shannon entropy of $g$ and the Kullback--Leibler (KL) divergence from $g$ to $p$:
+\begin{equation}\label{eq:crossent}
+\E_{Y \sim G}\,\mathrm{LS}(p, Y) = -\sum_{j} g_j \log p_j = \underbrace{-\sum_{j} g_j \log g_j}_{H(g)} \;+\; \underbrace{\sum_{j} g_j \log \frac{g_j}{p_j}}_{\mathrm{KL}(g \,\|\, p)}.
+\end{equation}
+The entropy $H(g)$ does not depend on the forecast, and $\mathrm{KL}(g \,\|\, p) \ge 0$ with equality if and only if $p = g$ (Gibbs' inequality), so the log score is strictly proper on buckets.
+
+\paragraph{Squared error.} If $Y \sim G$ has mean $\mu_G$ and variance $\mathrm{Var}_G(Y)$, then
+\begin{equation}\label{eq:se}
+\E_{Y \sim G}\,(Y - \hat y)^2 = (\hat y - \mu_G)^2 + \mathrm{Var}_G(Y),
+\end{equation}
+so the expected squared error is minimized by the mean, $\hat y = \mu_G$. It is a proper score for the mean, but it ignores the rest of the forecast distribution.
+
+\paragraph{Optimum and excess.} Eqs.~\eqref{eq:decomp}, \eqref{eq:crossent} and \eqref{eq:se} share one structure \citep{gneiting2007}: $\E_{Y \sim G}\, S(F, Y) = H_S(G) + d_S(F, G)$, where the optimum $H_S(G)$ depends only on $G$ and the excess $d_S(F, G) \ge 0$ is zero only for the ideal forecast. Table~\ref{tab:entropy} lists the pairs.
+
+\begin{table}[h]
+\centering
+\caption{Optimum (expected score of a forecaster who knows $G$) and excess of each score, for a forecast $F$ with bucket probabilities $p$ and best estimate $\hat y$, when $Y \sim G$ with bucket probabilities $g$.}
+\label{tab:entropy}
+\begin{tabular}{llll}
+\toprule
+Score & $S(F, y)$ & Optimum $H_S(G)$ & Excess $d_S(F, G)$ \\
+\midrule
+RPS & $\sum_t \big(F(t) - \1\{y \le t\}\big)^2$ & $\sum_t G(t)\big(1 - G(t)\big)$ & $\sum_t \big(F(t) - G(t)\big)^2$ \\
+Log score & $-\log p_{j(y)}$ & $H(g) = -\sum_j g_j \log g_j$ & $\mathrm{KL}(g \,\|\, p)$ \\
+Squared error & $(y - \hat y)^2$ & $\mathrm{Var}_G(Y)$ & $(\hat y - \mu_G)^2$ \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\paragraph{More information lowers the optimum.} With features $X$, the best achievable average score is $R_S^* = \E_X\, H_S\big(G(\cdot \mid X)\big)$. Each optimum is a minimum of functions that are linear in $G$, $H_S(G) = \min_F \E_{Y \sim G}\, S(F, Y)$, so it is concave. Since $G = \E_X\, G(\cdot \mid X)$, Jensen's inequality gives
+\begin{equation}\label{eq:jensen}
+R_S^* = \E_X\, H_S\big(G(\cdot \mid X)\big) \;\le\; H_S\big(\E_X\, G(\cdot \mid X)\big) = H_S(G).
+\end{equation}
+The gap $H_S(G) - R_S^*$ is the value of the features.
 
 \end{document}
